@@ -1,23 +1,25 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ArrowLeft, Mail, Lock, User, Phone } from 'lucide-react'
+import theme from '../theme'
 
 export default function AuthPage() {
   const navigate = useNavigate()
-  const [mode, setMode] = useState('login') // 'login' or 'register'
+  const [mode, setMode] = useState('login')
+  const t = theme.auth
 
   return (
-    <div className="min-h-screen bg-[#FAF9F7] flex flex-col">
+    <div className={`min-h-screen ${theme.colors.pageBg} flex flex-col`}>
       {/* Navbar */}
       <nav className="bg-white/80 backdrop-blur-md border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
           <button onClick={() => navigate('/')} className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-dwel-teal rounded-full flex items-center justify-center">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-                <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+            <div className={`w-8 h-8 ${theme.colors.primary} rounded-full flex items-center justify-center`}>
+              <svg width="16" height="16" viewBox={theme.brand.logo.viewBox} fill="white">
+                <path d={theme.brand.logo.iconPath}/>
               </svg>
             </div>
-            <span className="font-bold text-lg text-gray-900">Dwel.Digital</span>
+            <span className="font-bold text-lg text-gray-900">{theme.brand.name}</span>
           </button>
           <button
             onClick={() => navigate('/')}
@@ -35,12 +37,10 @@ export default function AuthPage() {
           <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-8">
             <div className="text-center mb-8">
               <h1 className="text-2xl font-bold text-gray-900 mb-2">
-                {mode === 'login' ? 'Welcome back' : 'Create your account'}
+                {mode === 'login' ? t.loginTitle : t.registerTitle}
               </h1>
               <p className="text-gray-500 text-sm">
-                {mode === 'login'
-                  ? 'Sign in to manage care for your loved ones'
-                  : 'Get started with Dwel.Digital in minutes'}
+                {mode === 'login' ? t.loginSubtitle : t.registerSubtitle}
               </p>
             </div>
 
@@ -54,7 +54,7 @@ export default function AuthPage() {
                       <input
                         type="text"
                         placeholder="Enter your full name"
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-dwel-teal focus:border-transparent text-sm"
+                        className={`w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 ${theme.colors.primaryFocus} focus:border-transparent text-sm`}
                       />
                     </div>
                   </div>
@@ -65,7 +65,7 @@ export default function AuthPage() {
                       <input
                         type="tel"
                         placeholder="Enter your phone number"
-                        className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-dwel-teal focus:border-transparent text-sm"
+                        className={`w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 ${theme.colors.primaryFocus} focus:border-transparent text-sm`}
                       />
                     </div>
                   </div>
@@ -79,7 +79,7 @@ export default function AuthPage() {
                   <input
                     type="email"
                     placeholder="Enter your email"
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-dwel-teal focus:border-transparent text-sm"
+                    className={`w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 ${theme.colors.primaryFocus} focus:border-transparent text-sm`}
                   />
                 </div>
               </div>
@@ -91,7 +91,7 @@ export default function AuthPage() {
                   <input
                     type="password"
                     placeholder={mode === 'login' ? 'Enter your password' : 'Create a password'}
-                    className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-dwel-teal focus:border-transparent text-sm"
+                    className={`w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 ${theme.colors.primaryFocus} focus:border-transparent text-sm`}
                   />
                 </div>
               </div>
@@ -102,15 +102,15 @@ export default function AuthPage() {
                     <input type="checkbox" className="rounded border-gray-300" />
                     Remember me
                   </label>
-                  <button className="text-dwel-teal hover:underline">Forgot password?</button>
+                  <button className={`${theme.colors.primaryText} hover:underline`}>Forgot password?</button>
                 </div>
               )}
 
               <button
                 onClick={() => navigate('/demo')}
-                className="w-full py-3 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-medium text-sm"
+                className={`w-full py-3 ${theme.colors.primary} text-white rounded-lg ${theme.colors.primaryHover} transition-colors font-medium text-sm`}
               >
-                {mode === 'login' ? 'Sign In' : 'Create Account'}
+                {mode === 'login' ? t.loginButton : t.registerButton}
               </button>
             </div>
 
@@ -118,14 +118,14 @@ export default function AuthPage() {
               {mode === 'login' ? (
                 <p>
                   Don't have an account?{' '}
-                  <button onClick={() => setMode('register')} className="text-dwel-teal font-medium hover:underline">
+                  <button onClick={() => setMode('register')} className={`${theme.colors.primaryText} font-medium hover:underline`}>
                     Sign up
                   </button>
                 </p>
               ) : (
                 <p>
                   Already have an account?{' '}
-                  <button onClick={() => setMode('login')} className="text-dwel-teal font-medium hover:underline">
+                  <button onClick={() => setMode('login')} className={`${theme.colors.primaryText} font-medium hover:underline`}>
                     Sign in
                   </button>
                 </p>
@@ -133,9 +133,7 @@ export default function AuthPage() {
             </div>
           </div>
 
-          <p className="text-center text-xs text-gray-400 mt-6">
-            By continuing, you agree to Dwel.Digital's Terms of Service and Privacy Policy.
-          </p>
+          <p className="text-center text-xs text-gray-400 mt-6">{t.tosText}</p>
         </div>
       </div>
     </div>

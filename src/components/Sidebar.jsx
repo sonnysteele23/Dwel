@@ -1,5 +1,6 @@
-import { NavLink, useLocation } from 'react-router-dom'
-import { Home, CalendarDays, Users, Grid3X3, Target, ChevronUp } from 'lucide-react'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { Home, CalendarDays, Users, Grid3X3, Target, LogOut } from 'lucide-react'
+import theme from '../theme'
 
 const navItems = [
   { path: '/demo', label: 'Dashboard', icon: Home },
@@ -11,20 +12,21 @@ const navItems = [
 
 export default function Sidebar({ collapsed, setCollapsed }) {
   const location = useLocation()
+  const navigate = useNavigate()
 
   return (
-    <aside className={`${collapsed ? 'w-16' : 'w-60'} bg-sidebar-bg border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
+    <aside className={`${collapsed ? 'w-16' : 'w-60'} ${theme.colors.sidebarBg} border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
       {/* Logo */}
       <div className="px-4 py-5 flex items-center gap-3">
-        <div className="w-8 h-8 bg-dwel-teal rounded-full flex items-center justify-center shrink-0">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="white">
-            <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+        <div className={`w-8 h-8 ${theme.colors.primary} rounded-full flex items-center justify-center shrink-0`}>
+          <svg width="16" height="16" viewBox={theme.brand.logo.viewBox} fill="white">
+            <path d={theme.brand.logo.iconPath}/>
           </svg>
         </div>
         {!collapsed && (
           <div>
-            <div className="font-semibold text-gray-900 text-sm">Dwel.Digital</div>
-            <div className="text-xs text-gray-500">Voice-First Care</div>
+            <div className="font-semibold text-gray-900 text-sm">{theme.brand.name}</div>
+            <div className="text-xs text-gray-500">{theme.brand.tagline}</div>
           </div>
         )}
       </div>
@@ -46,33 +48,38 @@ export default function Sidebar({ collapsed, setCollapsed }) {
               end={item.path === '/demo'}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive
-                  ? 'bg-dwel-teal-light text-dwel-teal'
-                  : 'text-gray-600 hover:bg-sidebar-hover'
+                  ? `${theme.colors.primaryLight} ${theme.colors.primaryText}`
+                  : `text-gray-600 ${theme.colors.sidebarHover}`
               }`}
             >
-              <Icon size={18} className={isActive ? 'text-dwel-teal' : 'text-gray-500'} />
+              <Icon size={18} className={isActive ? theme.colors.primaryText : 'text-gray-500'} />
               {!collapsed && <span>{item.label}</span>}
             </NavLink>
           )
         })}
       </nav>
 
-      {/* User Profile */}
-      <div className="p-3 border-t border-gray-200">
+      {/* User Profile & Logout */}
+      <div className="p-3 border-t border-gray-200 space-y-2">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center text-xs font-semibold text-blue-700 shrink-0">
-            DC
+          <div className={`w-8 h-8 ${theme.colors.avatarBg} rounded-full flex items-center justify-center text-xs font-semibold ${theme.colors.avatarText} shrink-0`}>
+            {theme.demo.userInitials}
           </div>
           {!collapsed && (
-            <>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-medium text-gray-900 truncate">Demo Caregiver</div>
-                <div className="text-xs text-gray-500">Caregiver</div>
-              </div>
-              <ChevronUp size={16} className="text-gray-400" />
-            </>
+            <div className="flex-1 min-w-0">
+              <div className="text-sm font-medium text-gray-900 truncate">{theme.demo.userName}</div>
+              <div className="text-xs text-gray-500">{theme.demo.userRole}</div>
+            </div>
           )}
         </div>
+        <button
+          onClick={() => navigate('/')}
+          className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors ${collapsed ? 'justify-center' : ''}`}
+          title="Log out"
+        >
+          <LogOut size={18} />
+          {!collapsed && <span>Log Out</span>}
+        </button>
       </div>
     </aside>
   )
