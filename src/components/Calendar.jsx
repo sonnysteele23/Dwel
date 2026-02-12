@@ -57,7 +57,7 @@ export default function Calendar() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => navigate('/')} className="p-2 hover:bg-gray-100 rounded-lg">
+        <button onClick={() => navigate('/demo')} className="p-2 hover:bg-gray-100 rounded-lg">
           <ArrowLeft size={20} className="text-gray-500" />
         </button>
         <div>

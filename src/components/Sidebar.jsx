@@ -2,11 +2,11 @@ import { NavLink, useLocation } from 'react-router-dom'
 import { Home, CalendarDays, Users, Grid3X3, Target, ChevronUp } from 'lucide-react'
 
 const navItems = [
-  { path: '/', label: 'Dashboard', icon: Home },
-  { path: '/calendar', label: 'Calendar', icon: CalendarDays },
-  { path: '/recipients', label: 'Care Recipients', icon: Users },
-  { path: '/services', label: 'Services', icon: Grid3X3 },
-  { path: '/onboarding', label: 'Onboarding', icon: Target },
+  { path: '/demo', label: 'Dashboard', icon: Home },
+  { path: '/demo/calendar', label: 'Calendar', icon: CalendarDays },
+  { path: '/demo/recipients', label: 'Care Recipients', icon: Users },
+  { path: '/demo/services', label: 'Services', icon: Grid3X3 },
+  { path: '/demo/onboarding', label: 'Onboarding', icon: Target },
 ]
 
 export default function Sidebar({ collapsed, setCollapsed }) {
@@ -43,6 +43,7 @@ export default function Sidebar({ collapsed, setCollapsed }) {
             <NavLink
               key={item.path}
               to={item.path}
+              end={item.path === '/demo'}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
                 isActive
                   ? 'bg-dwel-teal-light text-dwel-teal'
