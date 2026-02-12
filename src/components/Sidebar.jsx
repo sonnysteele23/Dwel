@@ -1,5 +1,6 @@
+import { useState, useRef, useEffect } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { Home, CalendarDays, Users, Grid3X3, Target, LogOut } from 'lucide-react'
+import { Home, CalendarDays, Users, Grid3X3, Target, LogOut, ChevronDown } from 'lucide-react'
 import theme from '../theme'
 
 const navItems = [
@@ -13,6 +14,19 @@ const navItems = [
 export default function Sidebar({ collapsed, setCollapsed }) {
   const location = useLocation()
   const navigate = useNavigate()
+  const [menuOpen, setMenuOpen] = useState(false)
+  const menuRef = useRef(null)
+
+  // Close menu when clicking outside
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [])
 
   return (
     <aside className={`${collapsed ? 'w-16' : 'w-60'} ${theme.colors.sidebarBg} border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
@@ -59,26 +73,46 @@ export default function Sidebar({ collapsed, setCollapsed }) {
         })}
       </nav>
 
-      {/* User Profile & Logout */}
-      <div className="p-3 border-t border-gray-200 space-y-2">
-        <div className="flex items-center gap-3">
+      {/* User Profile & Popover Logout */}
+      <div className="relative p-3 border-t border-gray-200" ref={menuRef}>
+        {/* Slide-up menu */}
+        <div
+          className={`absolute bottom-full left-2 right-2 mb-1 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden transition-all duration-200 ease-out origin-bottom ${
+            menuOpen ? 'opacity-100 scale-y-100 translate-y-0' : 'opacity-0 scale-y-95 translate-y-1 pointer-events-none'
+          }`}
+        >
+          <button
+            onClick={() => {
+              setMenuOpen(false)
+              navigate('/')
+            }}
+            className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors"
+          >
+            <LogOut size={16} />
+            Log Out
+          </button>
+        </div>
+
+        {/* User row */}
+        <button
+          onClick={() => setMenuOpen(!menuOpen)}
+          className={`flex items-center gap-3 w-full rounded-lg p-2 transition-colors ${theme.colors.sidebarHover} ${collapsed ? 'justify-center' : ''}`}
+        >
           <div className={`w-8 h-8 ${theme.colors.avatarBg} rounded-full flex items-center justify-center text-xs font-semibold ${theme.colors.avatarText} shrink-0`}>
             {theme.demo.userInitials}
           </div>
           {!collapsed && (
-            <div className="flex-1 min-w-0">
-              <div className="text-sm font-medium text-gray-900 truncate">{theme.demo.userName}</div>
-              <div className="text-xs text-gray-500">{theme.demo.userRole}</div>
-            </div>
+            <>
+              <div className="flex-1 min-w-0 text-left">
+                <div className="text-sm font-medium text-gray-900 truncate">{theme.demo.userName}</div>
+                <div className="text-xs text-gray-500">{theme.demo.userRole}</div>
+              </div>
+              <ChevronDown
+                size={16}
+                className={`${theme.colors.primaryText} transition-transform duration-200 ${menuOpen ? 'rotate-180' : ''}`}
+              />
+            </>
           )}
-        </div>
-        <button
-          onClick={() => navigate('/')}
-          className={`flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm font-medium text-gray-500 hover:text-red-600 hover:bg-red-50 transition-colors ${collapsed ? 'justify-center' : ''}`}
-          title="Log out"
-        >
-          <LogOut size={18} />
-          {!collapsed && <span>Log Out</span>}
         </button>
       </div>
     </aside>
