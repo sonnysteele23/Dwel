@@ -4,6 +4,7 @@ import Dashboard from './components/Dashboard'
 import Calendar from './components/Calendar'
 import CareRecipients from './components/CareRecipients'
 import Services from './components/Services'
+import Shopping from './components/Shopping'
 import Onboarding from './components/Onboarding'
 import LandingPage from './components/LandingPage'
 import AuthPage from './components/AuthPage'
@@ -47,6 +48,7 @@ function DemoLayout() {
           <Route path="/calendar" element={<Calendar />} />
           <Route path="/recipients" element={<CareRecipients />} />
           <Route path="/services" element={<Services />} />
+          <Route path="/shopping" element={<Shopping />} />
           <Route path="/onboarding" element={<Onboarding />} />
           <Route path="*" element={<Navigate to="/demo" />} />
         </Routes>

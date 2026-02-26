@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { Home, CalendarDays, Users, Grid3X3, Target, LogOut, ChevronDown } from 'lucide-react'
+import { Home, CalendarDays, Users, Grid3X3, Target, ShoppingCart, LogOut, ChevronDown } from 'lucide-react'
 import theme from '../theme'
 
 const navItems = [
@@ -8,6 +8,7 @@ const navItems = [
   { path: '/demo/calendar', label: 'Calendar', icon: CalendarDays },
   { path: '/demo/recipients', label: 'Care Recipients', icon: Users },
   { path: '/demo/services', label: 'Services', icon: Grid3X3 },
+  { path: '/demo/shopping', label: 'Shopping', icon: ShoppingCart },
   { path: '/demo/onboarding', label: 'Onboarding', icon: Target },
 ]
 
@@ -17,7 +18,6 @@ export default function Sidebar({ collapsed, setCollapsed }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef(null)
 
-  // Close menu when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (menuRef.current && !menuRef.current.contains(e.target)) {
@@ -75,17 +75,13 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
       {/* User Profile & Popover Logout */}
       <div className="relative p-3 border-t border-gray-200" ref={menuRef}>
-        {/* Slide-up menu */}
         <div
           className={`absolute bottom-full left-2 right-2 mb-1 bg-white rounded-lg shadow-lg border border-gray-200 overflow-hidden transition-all duration-200 ease-out origin-bottom ${
             menuOpen ? 'opacity-100 scale-y-100 translate-y-0' : 'opacity-0 scale-y-95 translate-y-1 pointer-events-none'
           }`}
         >
           <button
-            onClick={() => {
-              setMenuOpen(false)
-              navigate('/')
-            }}
+            onClick={() => { setMenuOpen(false); navigate('/'); }}
             className="flex items-center gap-3 w-full px-4 py-3 text-sm text-gray-600 hover:text-red-600 hover:bg-red-50 transition-colors"
           >
             <LogOut size={16} />
@@ -93,7 +89,6 @@ export default function Sidebar({ collapsed, setCollapsed }) {
           </button>
         </div>
 
-        {/* User row */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
           className={`flex items-center gap-3 w-full rounded-lg p-2 transition-colors ${theme.colors.sidebarHover} ${collapsed ? 'justify-center' : ''}`}
