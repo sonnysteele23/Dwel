@@ -1,4 +1,5 @@
-import { Mic, Link as LinkIcon, CheckCircle2, Car, ShoppingBag, Shield } from 'lucide-react'
+import { Mic, Link as LinkIcon, CheckCircle2, Car, ShoppingBag, Shield, ArrowLeft } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 const serviceCategories = [
   {
@@ -34,12 +35,18 @@ const serviceCategories = [
 ]
 
 export default function Services() {
+  const navigate = useNavigate()
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
-      <div className="mb-6">
+      <div className="flex items-center gap-3 mb-6">
+        <button onClick={() => navigate('/demo')} className="p-2 hover:bg-gray-100 rounded-lg">
+          <ArrowLeft size={20} className="text-gray-500" />
+        </button>
+        <div>
         <h1 className="text-3xl font-bold text-gray-900">Connected Services</h1>
         <p className="text-gray-500 mt-1">All care services powered by Uber's platform — rides, groceries, meals, and pharmacy delivery</p>
+        </div>
       </div>
 
       {/* Voice-Activated Services Banner */}

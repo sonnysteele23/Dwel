@@ -1,4 +1,5 @@
-import { Users, Phone, Mail, Mic, CalendarDays, MoreVertical, Plus } from 'lucide-react'
+import { Users, Phone, Mail, Mic, CalendarDays, MoreVertical, Plus, ArrowLeft } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
 
 const recipients = [
   {
@@ -12,13 +13,19 @@ const recipients = [
 ]
 
 export default function CareRecipients() {
+  const navigate = useNavigate()
   return (
     <div className="p-6 max-w-7xl mx-auto">
       {/* Header */}
       <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900">Care Recipients</h1>
-          <p className="text-gray-500 mt-1">Manage the people you care for</p>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/demo')} className="p-2 hover:bg-gray-100 rounded-lg">
+            <ArrowLeft size={20} className="text-gray-500" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900">Care Recipients</h1>
+            <p className="text-gray-500 mt-1">Manage the people you care for</p>
+          </div>
         </div>
         <button className="flex items-center gap-2 px-4 py-2.5 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-medium text-sm">
           <Plus size={18} />

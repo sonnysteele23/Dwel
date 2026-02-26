@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { User, ClipboardList, Users, ShoppingCart, MessageSquare, CheckCircle, ArrowRight } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { User, ClipboardList, Users, ShoppingCart, MessageSquare, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react'
 
 const steps = [
   { id: 'profile', label: 'Your Profile', icon: User },
@@ -55,6 +56,7 @@ const stepContent = {
 }
 
 export default function Onboarding() {
+  const navigate = useNavigate()
   const [currentStep, setCurrentStep] = useState(null)
   const [selectedNeeds, setSelectedNeeds] = useState([])
   const [selectedServices, setSelectedServices] = useState([])
@@ -64,6 +66,9 @@ export default function Onboarding() {
     return (
       <div className="p-6 max-w-3xl mx-auto">
         <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
+          <button onClick={() => navigate('/demo')} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-6 mx-auto">
+            <ArrowLeft size={16} /> Back to Dashboard
+          </button>
           <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Caregiver Onboarding</h1>
           <p className="text-gray-500 mb-8">Let's set up your account to help you care for your loved ones.</p>
 

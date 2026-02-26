@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  CalendarDays, Activity, Mic, Car, ShoppingBag,
-  TrendingUp, TrendingDown, Clock, Star, MapPin,
+  CalendarDays, Activity, Mic, Car, ShoppingBag, ShoppingCart,
+  TrendingUp, TrendingDown, Clock, MapPin,
   DollarSign, BarChart3, Zap, Package, AlertCircle, RefreshCw,
-  CheckCircle2, Truck, Eye, ChevronRight, Bell, CreditCard,
-  Repeat, Settings, Heart, Phone, Shield, Thermometer,
-  Pill, Utensils, Home, Sun, Moon, Droplets, Footprints,
-  MessageSquare, FileText, Users, ArrowUpRight, ArrowDownRight, Plus
+  CheckCircle2, Truck, Eye, ChevronRight, CreditCard,
+  Repeat, Heart, Phone, Shield,
+  Pill, Utensils, Sun, Droplets, Footprints,
+  ArrowUpRight, ArrowDownRight
 } from 'lucide-react'
 import VoiceAssistant from './VoiceAssistant'
 
@@ -77,7 +77,7 @@ const deliverySummary = {
   thisMonth: 6,
   totalSpent: 231.37,
   topStore: 'Stop & Shop',
-  activeDelivery: { merchant: 'Stop & Shop', icon: '🛒', items: 8, eta: '12 min', courier: 'Marcus T.' },
+  activeDelivery: { merchant: 'Stop & Shop', items: 8, eta: '12 min', courier: 'Marcus T.' },
   recurringActive: 3,
   nextRecurring: { name: "Dad's Weekly Essentials", date: 'Tomorrow' },
 }
@@ -321,7 +321,9 @@ export default function Dashboard() {
         <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 mb-6">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-xl">{deliverySummary.activeDelivery.icon}</div>
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <ShoppingBag size={18} className="text-blue-600" />
+              </div>
               <div>
                 <div className="text-sm font-semibold text-blue-900 flex items-center gap-2">
                   {deliverySummary.activeDelivery.merchant} — {deliverySummary.activeDelivery.items} items
@@ -516,21 +518,24 @@ export default function Dashboard() {
             </div>
             <div className="space-y-3">
               {[
-                { label: 'Groceries', value: spendingData.thisMonth.groceries, pct: (spendingData.thisMonth.groceries / spendingData.thisMonth.total) * 100, color: 'bg-green-500', icon: '🛒' },
-                { label: 'Rides', value: spendingData.thisMonth.rides, pct: (spendingData.thisMonth.rides / spendingData.thisMonth.total) * 100, color: 'bg-gray-700', icon: '🚗' },
-                { label: 'Meals', value: spendingData.thisMonth.meals, pct: (spendingData.thisMonth.meals / spendingData.thisMonth.total) * 100, color: 'bg-orange-500', icon: '🍽️' },
-                { label: 'Pharmacy', value: spendingData.thisMonth.pharmacy, pct: (spendingData.thisMonth.pharmacy / spendingData.thisMonth.total) * 100, color: 'bg-purple-500', icon: '💊' },
-              ].map((item, i) => (
+                { label: 'Groceries', value: spendingData.thisMonth.groceries, pct: (spendingData.thisMonth.groceries / spendingData.thisMonth.total) * 100, color: 'bg-green-500', iconEl: ShoppingCart, iconColor: 'text-green-500' },
+                { label: 'Rides', value: spendingData.thisMonth.rides, pct: (spendingData.thisMonth.rides / spendingData.thisMonth.total) * 100, color: 'bg-gray-700', iconEl: Car, iconColor: 'text-gray-600' },
+                { label: 'Meals', value: spendingData.thisMonth.meals, pct: (spendingData.thisMonth.meals / spendingData.thisMonth.total) * 100, color: 'bg-orange-500', iconEl: Utensils, iconColor: 'text-orange-500' },
+                { label: 'Pharmacy', value: spendingData.thisMonth.pharmacy, pct: (spendingData.thisMonth.pharmacy / spendingData.thisMonth.total) * 100, color: 'bg-purple-500', iconEl: Pill, iconColor: 'text-purple-500' },
+              ].map((item, i) => {
+                const ItemIcon = item.iconEl
+                return (
                 <div key={i}>
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs text-gray-600 flex items-center gap-1.5">{item.icon} {item.label}</span>
+                    <span className="text-xs text-gray-600 flex items-center gap-1.5"><ItemIcon size={12} className={item.iconColor} /> {item.label}</span>
                     <span className="text-xs font-semibold text-gray-900">${item.value.toFixed(0)}</span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-1.5">
                     <div className={`h-1.5 rounded-full ${item.color}`} style={{ width: `${item.pct}%` }} />
                   </div>
                 </div>
-              ))}
+              )})
+              }
             </div>
             <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between">
               <span className="text-sm text-gray-600">Total</span>

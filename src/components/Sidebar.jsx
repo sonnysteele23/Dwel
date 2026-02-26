@@ -30,20 +30,23 @@ export default function Sidebar({ collapsed, setCollapsed }) {
 
   return (
     <aside className={`${collapsed ? 'w-16' : 'w-60'} ${theme.colors.sidebarBg} border-r border-gray-200 flex flex-col transition-all duration-300 shrink-0`}>
-      {/* Logo */}
-      <div className="px-4 py-5 flex items-center gap-3">
+      {/* Logo — clickable to Dashboard */}
+      <button
+        onClick={() => navigate('/demo')}
+        className="px-4 py-5 flex items-center gap-3 w-full hover:bg-gray-50 transition-colors rounded-lg"
+      >
         <div className={`w-8 h-8 ${theme.colors.primary} rounded-full flex items-center justify-center shrink-0`}>
           <svg width="16" height="16" viewBox={theme.brand.logo.viewBox} fill="white">
             <path d={theme.brand.logo.iconPath}/>
           </svg>
         </div>
         {!collapsed && (
-          <div>
+          <div className="text-left">
             <div className="font-semibold text-gray-900 text-sm">{theme.brand.name}</div>
             <div className="text-xs text-gray-500">{theme.brand.tagline}</div>
           </div>
         )}
-      </div>
+      </button>
 
       {/* Navigation */}
       {!collapsed && (

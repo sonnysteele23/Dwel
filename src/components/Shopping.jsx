@@ -4,7 +4,7 @@ import {
   ShoppingCart, Package, Clock, RotateCcw, ChevronRight, Plus, Minus, Trash2,
   Search, Star, Truck, AlertCircle, CheckCircle2, Bell, MapPin, FileText, BarChart3,
   RefreshCw, Zap, ChevronDown, Mic, X, ShoppingBag, Car, Store, Heart,
-  ArrowRight, Eye, Timer
+  ArrowRight, Eye, Timer, ArrowLeft
 } from 'lucide-react'
 import theme from '../theme'
 import VoiceAssistant from './VoiceAssistant'
@@ -308,14 +308,19 @@ export default function Shopping() {
     <div className="p-6 max-w-7xl mx-auto">
       {/* ═══ Header ═══════════════════════════════════════════ */}
       <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
-            <ShoppingCart size={28} className="text-dwel-teal" />
-            Shopping & Orders
-          </h1>
-          <p className="text-gray-500 mt-1">
-            Order groceries, meals, and supplies for {careRecipient.name} via Uber Eats
-          </p>
+        <div className="flex items-center gap-3">
+          <button onClick={() => navigate('/demo')} className="p-2 hover:bg-gray-100 rounded-lg">
+            <ArrowLeft size={20} className="text-gray-500" />
+          </button>
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
+              <ShoppingCart size={28} className="text-dwel-teal" />
+              Shopping & Orders
+            </h1>
+            <p className="text-gray-500 mt-1">
+              Order groceries, meals, and supplies for {careRecipient.name} via Uber Eats
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-3">
           <button
@@ -704,13 +709,18 @@ export default function Shopping() {
          ═══════════════════════════════════════════════════════ */}
       {activeView === 'merchant-menu' && selectedMerchant && (
         <div className="space-y-6">
+          {/* Back to stores */}
+          <button
+            onClick={() => { setActiveView('browse'); setSelectedMerchant(null); setSearchQuery('') }}
+            className="flex items-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft size={16} />
+            Back to stores
+          </button>
+
           {/* Merchant Header */}
           <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <button onClick={() => { setActiveView('browse'); setSelectedMerchant(null); setSearchQuery('') }}
-                className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors">
-                <ChevronRight size={18} className="rotate-180" />
-              </button>
               <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">{selectedMerchant.icon}</div>
               <div>
                 <h2 className="font-semibold text-gray-900 text-lg">{selectedMerchant.name}</h2>
@@ -817,7 +827,16 @@ export default function Shopping() {
            CART
          ═══════════════════════════════════════════════════════ */}
       {activeView === 'cart' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div>
+          {/* Cart Back Button */}
+          <button
+            onClick={() => setActiveView(selectedMerchant ? 'merchant-menu' : 'overview')}
+            className="flex items-center gap-2 mb-4 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+          >
+            <ArrowLeft size={16} />
+            {selectedMerchant ? `Back to ${selectedMerchant.name}` : 'Back to Shopping'}
+          </button>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
             {cart.length === 0 ? (
               <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
@@ -907,6 +926,7 @@ export default function Shopping() {
               </button>
             </div>
           )}
+          </div>
         </div>
       )}
 
