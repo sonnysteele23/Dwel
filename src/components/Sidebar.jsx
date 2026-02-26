@@ -45,21 +45,10 @@ export default function Sidebar({ open, setOpen }) {
       className={`${open ? 'w-60' : 'w-16'} ${theme.colors.sidebarBg} border-r border-gray-200 flex flex-col shrink-0
         transition-all duration-300 ease-in-out overflow-hidden`}
     >
-      {/* Hamburger — above the logo, centered when collapsed */}
-      <div className={`pt-4 pb-2 flex ${open ? 'px-4 justify-start' : 'justify-center'}`}>
-        <button
-          onClick={() => setOpen(!open)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          aria-label="Toggle navigation"
-        >
-          <HamburgerIcon open={open} />
-        </button>
-      </div>
-
-      {/* Logo — navigates to homepage (landing page) */}
+      {/* Logo — top of sidebar, centered when collapsed */}
       <button
         onClick={() => navigate('/')}
-        className={`px-4 pb-4 flex items-center gap-3 w-full hover:bg-gray-50 transition-colors ${!open ? 'justify-center' : ''}`}
+        className={`pt-4 pb-3 flex items-center gap-3 w-full hover:bg-gray-50 transition-colors ${open ? 'px-4' : 'justify-center'}`}
         title="Go to homepage"
       >
         <div className={`w-8 h-8 ${theme.colors.primary} rounded-full flex items-center justify-center shrink-0`}>
@@ -75,12 +64,18 @@ export default function Sidebar({ open, setOpen }) {
         </div>
       </button>
 
-      <div className="mx-3 border-t border-gray-100 mb-2" />
-
-      {/* Nav label */}
-      <div className={`px-4 py-2 text-xs font-medium text-gray-400 uppercase tracking-wider overflow-hidden transition-all duration-300 ${open ? 'opacity-100' : 'opacity-0 h-0 py-0'}`}>
-        Navigation
+      {/* Hamburger — below logo */}
+      <div className={`pb-2 flex ${open ? 'px-4 justify-start' : 'justify-center'}`}>
+        <button
+          onClick={() => setOpen(!open)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Toggle navigation"
+        >
+          <HamburgerIcon open={open} />
+        </button>
       </div>
+
+      <div className="mx-3 border-t border-gray-100 mb-2" />
 
       {/* Nav items */}
       <nav className="flex-1 px-2 space-y-1">
@@ -93,8 +88,8 @@ export default function Sidebar({ open, setOpen }) {
               to={item.path}
               end={item.path === '/demo'}
               title={!open ? item.label : undefined}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                !open ? 'justify-center' : ''
+              className={`flex items-center rounded-lg text-sm font-medium transition-colors ${
+                open ? 'gap-3 px-3 py-2.5' : 'justify-center py-2.5'
               } ${
                 isActive
                   ? `${theme.colors.primaryLight} ${theme.colors.primaryText}`
