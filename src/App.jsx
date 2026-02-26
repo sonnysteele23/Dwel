@@ -7,6 +7,7 @@ import Services from './components/Services'
 import Shopping from './components/Shopping'
 import Rides from './components/Rides'
 import Onboarding from './components/Onboarding'
+import RecipientHealth from './components/RecipientHealth'
 import LandingPage from './components/LandingPage'
 import AuthPage from './components/AuthPage'
 import { useState } from 'react'
@@ -46,6 +47,7 @@ function DemoLayout() {
           <Route path="/shopping" element={<Shopping />} />
           <Route path="/rides" element={<Rides />} />
           <Route path="/onboarding" element={<Onboarding />} />
+          <Route path="/recipient" element={<RecipientHealth />} />
           <Route path="*" element={<Navigate to="/demo" />} />
         </Routes>
       </main>

@@ -1,5 +1,5 @@
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { Home, CalendarDays, Users, Grid3X3, Target, ShoppingCart, Car, LogOut, ChevronDown } from 'lucide-react'
+import { Home, CalendarDays, Users, Grid3X3, Target, ShoppingCart, Car, LogOut, ChevronDown, HeartPulse } from 'lucide-react'
 import { useState, useRef, useEffect } from 'react'
 import theme from '../theme'
 
@@ -10,6 +10,7 @@ const navItems = [
   { path: '/demo/services',   label: 'Services',        icon: Grid3X3 },
   { path: '/demo/shopping',   label: 'Shopping',        icon: ShoppingCart },
   { path: '/demo/rides',      label: 'Rides',           icon: Car },
+  { path: '/demo/recipient',  label: 'Recipient',       icon: HeartPulse },
   { path: '/demo/onboarding', label: 'Onboarding',      icon: Target },
 ]
 
