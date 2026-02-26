@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { User, ClipboardList, Users, ShoppingCart, MessageSquare, CheckCircle, ArrowRight, ArrowLeft } from 'lucide-react'
+import { User, ClipboardList, Users, ShoppingCart, MessageSquare, CheckCircle, ArrowRight, ArrowLeft, Check, Star, Link2, Bell } from 'lucide-react'
 
 const steps = [
   { id: 'profile', label: 'Your Profile', icon: User },
@@ -42,7 +42,7 @@ const stepContent = {
   services: {
     title: 'Connect Services',
     description: 'Connect to services your loved ones use regularly.',
-    serviceList: ['Uber', 'DoorDash', 'Instacart', 'Amazon', 'CVS', 'Walgreens']
+    serviceList: ['Uber', 'Uber Eats']
   },
   messaging: {
     title: 'Messaging Preferences',
@@ -178,10 +178,30 @@ export default function Onboarding() {
 
         {currentStep === 'summary' && (
           <div className="space-y-3 text-sm text-gray-600">
-            <p>✅ Profile information saved</p>
-            <p>✅ {selectedNeeds.length} care needs identified</p>
-            <p>✅ {selectedServices.length} services connected</p>
-            <p>✅ {selectedMessaging.length} notification preferences set</p>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-dwel-teal-light text-dwel-teal shrink-0">
+                <User size={14} />
+              </span>
+              <span>Profile information saved</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-dwel-teal-light text-dwel-teal shrink-0">
+                <ClipboardList size={14} />
+              </span>
+              <span>{selectedNeeds.length} care needs identified</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-dwel-teal-light text-dwel-teal shrink-0">
+                <Link2 size={14} />
+              </span>
+              <span>{selectedServices.length} services connected</span>
+            </div>
+            <div className="flex items-center gap-3">
+              <span className="flex items-center justify-center w-7 h-7 rounded-full bg-dwel-teal-light text-dwel-teal shrink-0">
+                <Bell size={14} />
+              </span>
+              <span>{selectedMessaging.length} notification preferences set</span>
+            </div>
           </div>
         )}
 
