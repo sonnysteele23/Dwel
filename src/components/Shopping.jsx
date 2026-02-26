@@ -7,6 +7,7 @@ import {
   RefreshCw, Zap, Users, ChevronDown, ExternalLink, Mic
 } from 'lucide-react'
 import theme from '../theme'
+import VoiceAssistant from './VoiceAssistant'
 
 // ─── Mock Data ─────────────────────────────────────────────────
 const careRecipient = {
@@ -155,6 +156,7 @@ export default function Shopping() {
   const [showCheckout, setShowCheckout] = useState(false)
   const [approvalRequired, setApprovalRequired] = useState(true)
   const [notifyCaregiver, setNotifyCaregiver] = useState(true)
+  const [voiceOpen, setVoiceOpen] = useState(false)
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0)
@@ -207,7 +209,10 @@ export default function Shopping() {
         </div>
         <div className="flex items-center gap-3">
           {/* Voice Order Button */}
-          <button className="flex items-center gap-2 px-4 py-2.5 bg-dwel-teal-light text-dwel-teal rounded-lg hover:bg-dwel-teal hover:text-white transition-colors font-medium text-sm">
+          <button
+            onClick={() => setVoiceOpen(true)}
+            className="flex items-center gap-2 px-4 py-2.5 bg-dwel-teal-light text-dwel-teal rounded-lg hover:bg-dwel-teal hover:text-white transition-colors font-medium text-sm"
+          >
             <Mic size={16} />
             Voice Order
           </button>
@@ -924,6 +929,9 @@ export default function Shopping() {
           </div>
         </div>
       )}
+
+      {/* Voice Assistant Modal */}
+      <VoiceAssistant isOpen={voiceOpen} onClose={() => setVoiceOpen(false)} />
     </div>
   )
 }

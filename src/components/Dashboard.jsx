@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Users, CalendarDays, Activity, Phone, Mail, Mic, MoreVertical, Plus, Calendar } from 'lucide-react'
+import VoiceAssistant from './VoiceAssistant'
 
 const statsCards = [
   { label: 'Care Recipients', value: 1, icon: Users, color: 'text-dwel-teal', bg: 'bg-dwel-teal-light' },
@@ -48,6 +49,8 @@ const activityIcons = {
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState('recipients')
+  const [voiceOpen, setVoiceOpen] = useState(false)
+
   const tabs = [
     { id: 'recipients', label: 'Care Recipients', icon: Users },
     { id: 'appointments', label: 'Appointments', icon: CalendarDays },
@@ -141,7 +144,10 @@ export default function Dashboard() {
                     </span>
                   </div>
                   <div className="flex gap-2">
-                    <button className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-medium text-sm">
+                    <button
+                      onClick={() => setVoiceOpen(true)}
+                      className="flex-1 flex items-center justify-center gap-2 py-2.5 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-medium text-sm"
+                    >
                       <Mic size={16} />
                       Voice Assistant
                     </button>
@@ -205,6 +211,9 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
+
+      {/* Voice Assistant Modal */}
+      <VoiceAssistant isOpen={voiceOpen} onClose={() => setVoiceOpen(false)} />
     </div>
   )
 }
