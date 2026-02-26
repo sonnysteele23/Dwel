@@ -45,10 +45,21 @@ export default function Sidebar({ open, setOpen }) {
       className={`${open ? 'w-60' : 'w-16'} ${theme.colors.sidebarBg} border-r border-gray-200 flex flex-col shrink-0
         transition-all duration-300 ease-in-out overflow-hidden`}
     >
+      {/* Hamburger — above the logo, centered when collapsed */}
+      <div className={`pt-4 pb-2 flex ${open ? 'px-4 justify-start' : 'justify-center'}`}>
+        <button
+          onClick={() => setOpen(!open)}
+          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          aria-label="Toggle navigation"
+        >
+          <HamburgerIcon open={open} />
+        </button>
+      </div>
+
       {/* Logo — navigates to homepage (landing page) */}
       <button
         onClick={() => navigate('/')}
-        className={`px-4 pt-5 pb-3 flex items-center gap-3 w-full hover:bg-gray-50 transition-colors ${!open ? 'justify-center' : ''}`}
+        className={`px-4 pb-4 flex items-center gap-3 w-full hover:bg-gray-50 transition-colors ${!open ? 'justify-center' : ''}`}
         title="Go to homepage"
       >
         <div className={`w-8 h-8 ${theme.colors.primary} rounded-full flex items-center justify-center shrink-0`}>
@@ -63,17 +74,6 @@ export default function Sidebar({ open, setOpen }) {
           <div className="text-xs text-gray-500 whitespace-nowrap">{theme.brand.tagline}</div>
         </div>
       </button>
-
-      {/* Hamburger — just below the logo */}
-      <div className={`px-4 pb-3 flex ${open ? 'justify-start' : 'justify-center'}`}>
-        <button
-          onClick={() => setOpen(!open)}
-          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-          aria-label="Toggle navigation"
-        >
-          <HamburgerIcon open={open} />
-        </button>
-      </div>
 
       <div className="mx-3 border-t border-gray-100 mb-2" />
 
