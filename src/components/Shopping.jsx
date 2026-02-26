@@ -2,129 +2,209 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
   ShoppingCart, Package, Clock, RotateCcw, ChevronRight, Plus, Minus, Trash2,
-  Search, Filter, Star, Truck, AlertCircle, CheckCircle2, Bell, Heart,
-  ArrowLeft, X, ShoppingBag, MapPin, CreditCard, FileText, BarChart3,
-  RefreshCw, Zap, Users, ChevronDown, ExternalLink, Mic
+  Search, Star, Truck, AlertCircle, CheckCircle2, Bell, MapPin, FileText, BarChart3,
+  RefreshCw, Zap, ChevronDown, Mic, X, ShoppingBag, Car, Store, Heart,
+  ArrowRight, Eye, Timer
 } from 'lucide-react'
 import theme from '../theme'
 import VoiceAssistant from './VoiceAssistant'
 
-// ─── Mock Data ─────────────────────────────────────────────────
+// ─── Mock Data (Uber Eats Consumer Delivery + Guest Rides) ──────
+
 const careRecipient = {
   name: 'Robert Chen',
   initials: 'RC',
   relationship: 'Father',
   address: '123 Oak Street, Apt 4B, Boston, MA 02101',
+  dietaryProfile: ['Low Sodium', 'Diabetic-Friendly', 'No Shellfish'],
+  uberLinked: true,
 }
 
-const connectedServices = [
+// Uber Eats Merchant Discovery results
+const nearbyMerchants = [
   {
-    id: 'instacart',
-    name: 'Instacart',
+    id: 'stop-and-shop-456',
+    name: 'Stop & Shop',
     category: 'Grocery',
-    icon: '🥕',
-    tagColor: 'bg-green-100 text-green-700',
-    connected: true,
-    deliveryEta: '2 hours',
-    fee: 3.99,
+    icon: '🛒',
+    rating: 4.6,
+    deliveryEta: '45–60 min',
+    deliveryFee: 3.99,
+    distance: '1.2 mi',
+    featured: true,
   },
   {
-    id: 'uber',
-    name: 'Uber',
-    category: 'Transport',
-    icon: 'U',
-    tagColor: 'bg-gray-900 text-white',
-    connected: true,
-    deliveryEta: '15 min',
-    fee: 0,
-  },
-  {
-    id: 'amazon',
-    name: 'Amazon',
-    category: 'Shopping',
-    icon: 'a',
-    tagColor: 'bg-orange-100 text-orange-700',
-    connected: true,
-    deliveryEta: 'Next day',
-    fee: 0,
-  },
-  {
-    id: 'cvs',
-    name: 'CVS',
+    id: 'cvs-pharmacy-789',
+    name: 'CVS Pharmacy',
     category: 'Pharmacy',
-    icon: 'C',
-    tagColor: 'bg-purple-100 text-purple-700',
-    connected: true,
-    deliveryEta: 'Same day',
-    fee: 4.99,
+    icon: '💊',
+    rating: 4.3,
+    deliveryEta: '30–45 min',
+    deliveryFee: 4.99,
+    distance: '0.8 mi',
+    featured: false,
+  },
+  {
+    id: 'panera-bread-123',
+    name: 'Panera Bread',
+    category: 'Restaurant',
+    icon: '🥖',
+    rating: 4.5,
+    deliveryEta: '25–35 min',
+    deliveryFee: 2.49,
+    distance: '1.5 mi',
+    featured: false,
+  },
+  {
+    id: 'trader-joes-321',
+    name: "Trader Joe's",
+    category: 'Grocery',
+    icon: '🌻',
+    rating: 4.8,
+    deliveryEta: '50–70 min',
+    deliveryFee: 5.99,
+    distance: '2.3 mi',
+    featured: false,
+  },
+  {
+    id: 'walgreens-654',
+    name: 'Walgreens',
+    category: 'Pharmacy',
+    icon: '🏥',
+    rating: 4.1,
+    deliveryEta: '35–50 min',
+    deliveryFee: 3.49,
+    distance: '0.5 mi',
+    featured: false,
+  },
+  {
+    id: 'boston-market-111',
+    name: 'Boston Market',
+    category: 'Restaurant',
+    icon: '🍗',
+    rating: 4.2,
+    deliveryEta: '30–40 min',
+    deliveryFee: 1.99,
+    distance: '1.1 mi',
+    featured: false,
   },
 ]
 
+// Menu items from a merchant (Consumer Delivery Menu & Items endpoint)
+const merchantMenuItems = {
+  'stop-and-shop-456': [
+    { id: 'ss-1', name: 'Whole Milk (1 gal)', price: 4.29, icon: '🥛', category: 'Dairy', dietaryFlags: [], runningLow: true, daysLeft: 2 },
+    { id: 'ss-2', name: 'Whole Wheat Bread', price: 3.49, icon: '🍞', category: 'Bakery', dietaryFlags: ['Low Sodium'], runningLow: false },
+    { id: 'ss-3', name: 'Bananas (bunch)', price: 1.29, icon: '🍌', category: 'Produce', dietaryFlags: ['Diabetic-Friendly'], runningLow: true, daysLeft: 3 },
+    { id: 'ss-4', name: 'Ensure Original (12pk)', price: 24.99, icon: '🥤', category: 'Health', dietaryFlags: [], runningLow: true, daysLeft: 5 },
+    { id: 'ss-5', name: 'Fresh Chicken Breast', price: 8.99, icon: '🍗', category: 'Meat', dietaryFlags: ['Low Sodium'], runningLow: false },
+    { id: 'ss-6', name: 'Baby Spinach (10oz)', price: 3.99, icon: '🥬', category: 'Produce', dietaryFlags: ['Low Sodium', 'Diabetic-Friendly'], runningLow: false },
+    { id: 'ss-7', name: 'Brown Rice (2lb)', price: 3.29, icon: '🍚', category: 'Grains', dietaryFlags: ['Low Sodium', 'Diabetic-Friendly'], runningLow: false },
+    { id: 'ss-8', name: 'Low Sodium Chicken Broth', price: 2.99, icon: '🥣', category: 'Soup', dietaryFlags: ['Low Sodium'], runningLow: true, daysLeft: 4 },
+    { id: 'ss-9', name: 'Fresh Salmon Fillet', price: 12.99, icon: '🐟', category: 'Seafood', dietaryFlags: ['Low Sodium'], runningLow: false },
+    { id: 'ss-10', name: 'Greek Yogurt (plain)', price: 5.49, icon: '🥛', category: 'Dairy', dietaryFlags: ['Low Sodium'], runningLow: false },
+  ],
+}
+
+// Saved shopping lists (Dwel layer wrapping Uber Eats cart/items)
 const savedLists = [
   {
     id: 'weekly-essentials',
     name: "Dad's Weekly Essentials",
-    items: 15,
+    items: 12,
+    merchant: 'stop-and-shop-456',
+    merchantName: 'Stop & Shop',
+    merchantIcon: '🛒',
     lastOrdered: '3 days ago',
-    service: 'instacart',
+    estimatedTotal: 47.30,
     autoReorder: true,
     nextAuto: 'Tomorrow',
-  },
-  {
-    id: 'medical-supplies',
-    name: 'Medical Supplies',
-    items: 8,
-    lastOrdered: '2 weeks ago',
-    service: 'amazon',
-    autoReorder: false,
+    frequency: 'Weekly',
   },
   {
     id: 'heart-healthy',
     name: 'Heart-Healthy Groceries',
-    items: 12,
+    items: 8,
+    merchant: 'stop-and-shop-456',
+    merchantName: 'Stop & Shop',
+    merchantIcon: '🛒',
     lastOrdered: '5 days ago',
-    service: 'instacart',
+    estimatedTotal: 38.90,
     autoReorder: true,
     nextAuto: 'Friday',
+    frequency: 'Weekly',
+  },
+  {
+    id: 'comfort-meals',
+    name: 'Comfort Meal Rotation',
+    items: 4,
+    merchant: 'panera-bread-123',
+    merchantName: 'Panera Bread',
+    merchantIcon: '🥖',
+    lastOrdered: '1 week ago',
+    estimatedTotal: 32.50,
+    autoReorder: false,
+    frequency: null,
   },
 ]
 
-const suggestedItems = [
-  { id: 1, name: 'Weekly Pill Organizer', category: 'Medical', price: 12.99, service: 'amazon', icon: '💊', runningLow: true },
-  { id: 2, name: 'Blood Pressure Monitor', category: 'Medical', price: 34.99, service: 'amazon', icon: '🩺', runningLow: false },
-  { id: 3, name: 'Heart-Healthy Meal Kit', category: 'Grocery', price: 42.99, service: 'instacart', icon: '❤️', runningLow: false },
-  { id: 4, name: 'Fresh Produce Selection', category: 'Grocery', price: 28.50, service: 'instacart', icon: '🥬', runningLow: true },
-  { id: 5, name: 'Mobility Grip Socks (3-pack)', category: 'Medical', price: 15.99, service: 'amazon', icon: '🧦', runningLow: false },
-  { id: 6, name: 'Ensure Nutrition Shake (12pk)', category: 'Grocery', price: 24.99, service: 'instacart', icon: '🥤', runningLow: true },
-  { id: 7, name: 'Emergency Alert Device', category: 'Medical', price: 89.99, service: 'amazon', icon: '🚨', runningLow: false },
-  { id: 8, name: 'Prescription Refill - Lisinopril', category: 'Pharmacy', price: 15.00, service: 'cvs', icon: '💊', runningLow: true },
-]
-
+// Order history (Consumer Delivery past orders endpoint)
 const orderHistory = [
-  { id: 'ORD-1041', service: 'instacart', items: 12, total: 67.84, status: 'delivered', date: '2 days ago', rating: 5 },
-  { id: 'ORD-1038', service: 'amazon', items: 3, total: 52.97, status: 'in-transit', date: '3 days ago', eta: 'Tomorrow by 5pm' },
-  { id: 'ORD-1035', service: 'cvs', items: 2, total: 34.50, status: 'delivered', date: '1 week ago', rating: 4 },
-  { id: 'ORD-1029', service: 'instacart', items: 15, total: 89.23, status: 'delivered', date: '1 week ago', rating: 5 },
-  { id: 'ORD-1024', service: 'uber', items: 1, total: 18.50, status: 'delivered', date: '2 weeks ago', rating: 4 },
+  { id: 'UE-8841', merchant: 'Stop & Shop', merchantIcon: '🛒', category: 'Grocery', items: 12, total: 52.84, deliveryFee: 3.99, dwelFee: 1.99, status: 'delivered', date: '2 days ago', rating: 5, trackingUrl: '#' },
+  { id: 'UE-8837', merchant: 'CVS Pharmacy', merchantIcon: '💊', category: 'Pharmacy', items: 3, total: 34.50, deliveryFee: 4.99, dwelFee: 1.99, status: 'delivered', date: '4 days ago', rating: 4, trackingUrl: '#' },
+  { id: 'UE-8830', merchant: 'Panera Bread', merchantIcon: '🥖', category: 'Restaurant', items: 2, total: 22.30, deliveryFee: 2.49, dwelFee: 1.99, status: 'delivered', date: '1 week ago', rating: 5, trackingUrl: '#' },
+  { id: 'UE-8824', merchant: 'Stop & Shop', merchantIcon: '🛒', category: 'Grocery', items: 15, total: 89.23, deliveryFee: 3.99, dwelFee: 1.99, status: 'delivered', date: '1 week ago', rating: 5, trackingUrl: '#' },
+  { id: 'UE-8819', merchant: "Trader Joe's", merchantIcon: '🌻', category: 'Grocery', items: 8, total: 45.60, deliveryFee: 5.99, dwelFee: 1.99, status: 'delivered', date: '2 weeks ago', rating: 4, trackingUrl: '#' },
 ]
 
+// Active deliveries (Consumer Delivery status tracking)
+const activeDeliveries = [
+  {
+    id: 'UE-8845',
+    merchant: 'Stop & Shop',
+    merchantIcon: '🛒',
+    items: 8,
+    total: 41.20,
+    status: 'out_for_delivery',
+    statusLabel: 'Out for Delivery',
+    courierName: 'Marcus T.',
+    courierRating: 4.9,
+    eta: '12 min',
+    trackingUrl: '#',
+    orderedAt: '35 min ago',
+  },
+]
+
+// Inventory alerts (Dwel estimation engine using order history)
 const inventoryAlerts = [
-  { item: 'Pill Organizer', daysLeft: 2, severity: 'urgent' },
-  { item: 'Ensure Nutrition Shakes', daysLeft: 5, severity: 'warning' },
-  { item: 'Fresh Produce', daysLeft: 3, severity: 'urgent' },
-  { item: 'Lisinopril (Prescription)', daysLeft: 7, severity: 'warning' },
+  { item: 'Whole Milk', daysLeft: 2, severity: 'urgent', merchantItem: 'ss-1', lastOrderedQty: 1, price: 4.29 },
+  { item: 'Bananas', daysLeft: 3, severity: 'urgent', merchantItem: 'ss-3', lastOrderedQty: 1, price: 1.29 },
+  { item: 'Low Sodium Broth', daysLeft: 4, severity: 'warning', merchantItem: 'ss-8', lastOrderedQty: 2, price: 2.99 },
+  { item: 'Ensure Shakes (12pk)', daysLeft: 5, severity: 'warning', merchantItem: 'ss-4', lastOrderedQty: 1, price: 24.99 },
 ]
 
-// ─── Sub-Components ────────────────────────────────────────────
+// Spending analytics (receipts from both APIs)
+const spendingData = {
+  thisMonth: { groceries: 142.07, meals: 54.80, pharmacy: 34.50, rides: 62.00, total: 293.37 },
+  lastMonth: { total: 267.40 },
+  voucherBalance: 106.63,
+  voucherTotal: 400.00,
+  ordersThisMonth: 6,
+  ridesThisMonth: 4,
+}
+
+// ─── Sub-Components ─────────────────────────────────────────────
 
 function StatusBadge({ status }) {
   const config = {
     delivered: { bg: 'bg-green-50', text: 'text-green-700', border: 'border-green-200', label: 'Delivered', icon: CheckCircle2 },
-    'in-transit': { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', label: 'In Transit', icon: Truck },
-    processing: { bg: 'bg-yellow-50', text: 'text-yellow-700', border: 'border-yellow-200', label: 'Processing', icon: Clock },
+    out_for_delivery: { bg: 'bg-blue-50', text: 'text-blue-700', border: 'border-blue-200', label: 'On the Way', icon: Truck },
+    preparing: { bg: 'bg-amber-50', text: 'text-amber-700', border: 'border-amber-200', label: 'Preparing', icon: Clock },
+    confirmed: { bg: 'bg-purple-50', text: 'text-purple-700', border: 'border-purple-200', label: 'Confirmed', icon: CheckCircle2 },
     failed: { bg: 'bg-red-50', text: 'text-red-700', border: 'border-red-200', label: 'Failed', icon: AlertCircle },
+    pending_approval: { bg: 'bg-orange-50', text: 'text-orange-700', border: 'border-orange-200', label: 'Pending Approval', icon: Clock },
   }
-  const c = config[status] || config.processing
+  const c = config[status] || config.confirmed
   const Icon = c.icon
   return (
     <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${c.bg} ${c.text} border ${c.border}`}>
@@ -134,69 +214,99 @@ function StatusBadge({ status }) {
   )
 }
 
-function ServiceIcon({ service, size = 'md' }) {
-  const s = connectedServices.find(cs => cs.id === service)
-  if (!s) return null
-  const sizeClass = size === 'sm' ? 'w-7 h-7 text-xs' : 'w-10 h-10 text-sm'
+function CategoryBadge({ category }) {
+  const colors = {
+    Grocery: 'bg-green-50 text-green-700 border-green-200',
+    Pharmacy: 'bg-purple-50 text-purple-700 border-purple-200',
+    Restaurant: 'bg-orange-50 text-orange-700 border-orange-200',
+  }
   return (
-    <div className={`${sizeClass} rounded-lg flex items-center justify-center font-bold ${s.tagColor}`}>
-      {s.icon}
-    </div>
+    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${colors[category] || 'bg-gray-50 text-gray-700 border-gray-200'}`}>
+      {category}
+    </span>
   )
 }
 
-// ─── Main Component ────────────────────────────────────────────
+function DietaryTag({ label }) {
+  return (
+    <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">
+      ✓ {label}
+    </span>
+  )
+}
+
+// ─── Main Component ─────────────────────────────────────────────
 
 export default function Shopping() {
   const navigate = useNavigate()
-  const [activeView, setActiveView] = useState('overview') // overview | browse | cart | history | lists | inventory
+  const [activeView, setActiveView] = useState('overview')
   const [cart, setCart] = useState([])
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedService, setSelectedService] = useState('all')
+  const [categoryFilter, setCategoryFilter] = useState('all')
+  const [selectedMerchant, setSelectedMerchant] = useState(null)
   const [showCheckout, setShowCheckout] = useState(false)
   const [approvalRequired, setApprovalRequired] = useState(true)
-  const [notifyCaregiver, setNotifyCaregiver] = useState(true)
+  const [notifyOnDelivery, setNotifyOnDelivery] = useState(true)
   const [voiceOpen, setVoiceOpen] = useState(false)
+  const [dietaryFilterOn, setDietaryFilterOn] = useState(false)
 
   const cartTotal = cart.reduce((sum, item) => sum + item.price * item.qty, 0)
   const cartCount = cart.reduce((sum, item) => sum + item.qty, 0)
+  const cartMerchant = cart.length > 0 ? nearbyMerchants.find(m => m.id === cart[0].merchantId) : null
+  const deliveryFee = cartMerchant?.deliveryFee || 0
+  const dwelFee = 1.99
 
-  function addToCart(item) {
+  function addToCart(item, merchantId) {
+    // If cart has items from different merchant, warn
+    if (cart.length > 0 && cart[0].merchantId !== merchantId) {
+      if (!confirm('Adding items from a different store will clear your current cart. Continue?')) return
+      setCart([])
+    }
     setCart(prev => {
       const existing = prev.find(c => c.id === item.id)
       if (existing) return prev.map(c => c.id === item.id ? { ...c, qty: c.qty + 1 } : c)
-      return [...prev, { ...item, qty: 1 }]
+      return [...prev, { ...item, merchantId, qty: 1 }]
     })
   }
 
   function updateQty(id, delta) {
-    setCart(prev =>
-      prev.map(c => c.id === id ? { ...c, qty: Math.max(0, c.qty + delta) } : c).filter(c => c.qty > 0)
-    )
+    setCart(prev => prev.map(c => c.id === id ? { ...c, qty: Math.max(0, c.qty + delta) } : c).filter(c => c.qty > 0))
   }
 
   function removeFromCart(id) {
     setCart(prev => prev.filter(c => c.id !== id))
   }
 
-  const filteredItems = suggestedItems.filter(item => {
-    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesService = selectedService === 'all' || item.service === selectedService
-    return matchesSearch && matchesService
+  function openMerchant(merchant) {
+    setSelectedMerchant(merchant)
+    setActiveView('merchant-menu')
+  }
+
+  const filteredMerchants = nearbyMerchants.filter(m => {
+    const matchesSearch = m.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesCat = categoryFilter === 'all' || m.category === categoryFilter
+    return matchesSearch && matchesCat
   })
 
-  // ─── Navigation Tabs ──────────────────────────────────────
+  const currentMenu = selectedMerchant ? (merchantMenuItems[selectedMerchant.id] || []) : []
+  const filteredMenu = currentMenu.filter(item => {
+    const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase())
+    const matchesDietary = !dietaryFilterOn || item.dietaryFlags.some(f => careRecipient.dietaryProfile.includes(f))
+    return matchesSearch && matchesDietary
+  })
+
+  // ─── Tabs ─────────────────────────────────────────────────
   const tabs = [
     { id: 'overview', label: 'Overview', icon: ShoppingBag },
-    { id: 'browse', label: 'Browse & Order', icon: Search },
+    { id: 'browse', label: 'Order', icon: Store },
     { id: 'lists', label: 'Saved Lists', icon: FileText },
-    { id: 'history', label: 'Order History', icon: Clock },
+    { id: 'history', label: 'History', icon: Clock },
     { id: 'inventory', label: 'Inventory', icon: BarChart3 },
   ]
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* Header */}
+      {/* ═══ Header ═══════════════════════════════════════════ */}
       <div className="flex items-start justify-between mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-3">
@@ -204,11 +314,10 @@ export default function Shopping() {
             Shopping & Orders
           </h1>
           <p className="text-gray-500 mt-1">
-            Order groceries, supplies, and medications for {careRecipient.name}
+            Order groceries, meals, and supplies for {careRecipient.name} via Uber Eats
           </p>
         </div>
         <div className="flex items-center gap-3">
-          {/* Voice Order Button */}
           <button
             onClick={() => setVoiceOpen(true)}
             className="flex items-center gap-2 px-4 py-2.5 bg-dwel-teal-light text-dwel-teal rounded-lg hover:bg-dwel-teal hover:text-white transition-colors font-medium text-sm"
@@ -216,7 +325,6 @@ export default function Shopping() {
             <Mic size={16} />
             Voice Order
           </button>
-          {/* Cart Button */}
           <button
             onClick={() => setActiveView('cart')}
             className="relative flex items-center gap-2 px-4 py-2.5 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-medium text-sm"
@@ -232,14 +340,22 @@ export default function Shopping() {
         </div>
       </div>
 
-      {/* Delivery To Banner */}
+      {/* ═══ Delivery Banner ══════════════════════════════════ */}
       <div className="bg-white rounded-xl border border-gray-200 p-4 mb-6 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-dwel-teal-light rounded-full flex items-center justify-center text-sm font-semibold text-dwel-teal">
             {careRecipient.initials}
           </div>
           <div>
-            <div className="text-sm font-medium text-gray-900">Delivering to {careRecipient.name} <span className="text-gray-400">({careRecipient.relationship})</span></div>
+            <div className="text-sm font-medium text-gray-900">
+              Delivering to {careRecipient.name}
+              <span className="text-gray-400 ml-1">({careRecipient.relationship})</span>
+              {careRecipient.uberLinked && (
+                <span className="ml-2 inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-medium bg-gray-900 text-white">
+                  Uber Linked
+                </span>
+              )}
+            </div>
             <div className="flex items-center gap-1 text-xs text-gray-500">
               <MapPin size={12} />
               {careRecipient.address}
@@ -248,73 +364,102 @@ export default function Shopping() {
         </div>
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={notifyCaregiver}
-              onChange={() => setNotifyCaregiver(!notifyCaregiver)}
-              className="rounded border-gray-300 text-dwel-teal focus:ring-dwel-teal"
-            />
-            <Bell size={14} />
-            Notify me on delivery
+            <input type="checkbox" checked={notifyOnDelivery} onChange={() => setNotifyOnDelivery(!notifyOnDelivery)}
+              className="rounded border-gray-300 text-dwel-teal focus:ring-dwel-teal" />
+            <Bell size={14} /> Notify me
           </label>
           <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
-            <input
-              type="checkbox"
-              checked={approvalRequired}
-              onChange={() => setApprovalRequired(!approvalRequired)}
-              className="rounded border-gray-300 text-dwel-teal focus:ring-dwel-teal"
-            />
-            <CheckCircle2 size={14} />
-            Require my approval
+            <input type="checkbox" checked={approvalRequired} onChange={() => setApprovalRequired(!approvalRequired)}
+              className="rounded border-gray-300 text-dwel-teal focus:ring-dwel-teal" />
+            <CheckCircle2 size={14} /> Require approval
           </label>
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* ═══ Active Delivery Tracker ══════════════════════════ */}
+      {activeDeliveries.length > 0 && activeView === 'overview' && (
+        <div className="mb-6">
+          {activeDeliveries.map(d => (
+            <div key={d.id} className="bg-blue-50 border border-blue-200 rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center text-xl">{d.merchantIcon}</div>
+                  <div>
+                    <div className="text-sm font-semibold text-blue-900 flex items-center gap-2">
+                      {d.merchant} — {d.items} items
+                      <StatusBadge status={d.status} />
+                    </div>
+                    <div className="text-xs text-blue-700 mt-0.5">
+                      Courier: {d.courierName} ({d.courierRating}★) • ETA: <strong>{d.eta}</strong>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-blue-700 bg-blue-100 rounded-lg hover:bg-blue-200 transition-colors">
+                    <Eye size={12} /> Track
+                  </button>
+                </div>
+              </div>
+              {/* Progress bar */}
+              <div className="mt-3 flex items-center gap-2">
+                {['Confirmed', 'Preparing', 'Courier Dispatched', 'Arriving'].map((step, i) => (
+                  <div key={step} className="flex-1">
+                    <div className={`h-1.5 rounded-full ${i <= 2 ? 'bg-blue-500' : 'bg-blue-200'}`} />
+                    <div className={`text-[10px] mt-1 ${i <= 2 ? 'text-blue-700 font-medium' : 'text-blue-400'}`}>{step}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ═══ Tabs ═════════════════════════════════════════════ */}
       <div className="flex gap-1 mb-6 bg-gray-100 rounded-lg p-1 w-fit">
         {tabs.map(tab => {
           const Icon = tab.icon
+          const isActive = activeView === tab.id || (activeView === 'merchant-menu' && tab.id === 'browse')
           return (
-            <button
-              key={tab.id}
-              onClick={() => setActiveView(tab.id)}
+            <button key={tab.id}
+              onClick={() => { setActiveView(tab.id); if (tab.id !== 'browse') setSelectedMerchant(null) }}
               className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                activeView === tab.id
-                  ? 'bg-white text-gray-900 shadow-sm'
-                  : 'text-gray-500 hover:text-gray-700'
+                isActive ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              <Icon size={16} />
-              {tab.label}
+              <Icon size={16} /> {tab.label}
             </button>
           )
         })}
       </div>
 
-      {/* ─── OVERVIEW VIEW ─────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+           OVERVIEW
+         ═══════════════════════════════════════════════════════ */}
       {activeView === 'overview' && (
         <div className="space-y-6">
           {/* Inventory Alerts */}
           {inventoryAlerts.length > 0 && (
             <div className="bg-amber-50 border border-amber-200 rounded-xl p-5">
               <h3 className="flex items-center gap-2 text-sm font-semibold text-amber-800 mb-3">
-                <AlertCircle size={16} />
-                Inventory Alerts — Running Low
+                <AlertCircle size={16} /> Running Low — Estimated from Order History
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {inventoryAlerts.map((alert, i) => (
                   <div key={i} className="flex items-center justify-between bg-white rounded-lg p-3 border border-amber-100">
                     <div>
                       <div className="text-sm font-medium text-gray-900">{alert.item}</div>
-                      <div className={`text-xs ${alert.severity === 'urgent' ? 'text-red-600' : 'text-amber-600'}`}>
-                        ~{alert.daysLeft} days remaining
+                      <div className={`text-xs flex items-center gap-1 ${alert.severity === 'urgent' ? 'text-red-600' : 'text-amber-600'}`}>
+                        <Timer size={10} /> ~{alert.daysLeft} days remaining • ${alert.price.toFixed(2)}
                       </div>
                     </div>
                     <button
-                      onClick={() => { addToCart(suggestedItems.find(s => s.name.includes(alert.item.split(' ')[0])) || suggestedItems[0]); }}
+                      onClick={() => {
+                        const menuItem = merchantMenuItems['stop-and-shop-456']?.find(m => m.id === alert.merchantItem)
+                        if (menuItem) addToCart(menuItem, 'stop-and-shop-456')
+                      }}
                       className="px-3 py-1.5 text-xs font-medium text-dwel-teal bg-dwel-teal-light rounded-lg hover:bg-dwel-teal hover:text-white transition-colors"
                     >
-                      Reorder
+                      Add to Cart
                     </button>
                   </div>
                 ))}
@@ -322,103 +467,123 @@ export default function Shopping() {
             </div>
           )}
 
-          {/* Connected Services */}
-          <div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-3">Connected Services</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-              {connectedServices.map(service => (
-                <button
-                  key={service.id}
-                  onClick={() => { setSelectedService(service.id); setActiveView('browse'); }}
-                  className="bg-white rounded-xl border border-gray-200 p-4 text-left hover:border-dwel-teal hover:shadow-md transition-all group"
-                >
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className={`w-10 h-10 rounded-lg flex items-center justify-center font-bold ${service.tagColor}`}>
-                      {service.icon}
-                    </div>
-                    <div>
-                      <div className="font-semibold text-gray-900 text-sm">{service.name}</div>
-                      <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${service.tagColor}`}>
-                        {service.category}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="flex items-center justify-between text-xs text-gray-500">
-                    <span className="flex items-center gap-1">
-                      <Truck size={12} />
-                      {service.deliveryEta}
-                    </span>
-                    {service.fee > 0 && <span>${service.fee.toFixed(2)} fee</span>}
-                    {service.fee === 0 && <span className="text-green-600">Free delivery</span>}
-                  </div>
-                  <div className="mt-3 flex items-center gap-1 text-xs text-dwel-teal font-medium opacity-0 group-hover:opacity-100 transition-opacity">
-                    Browse items <ChevronRight size={12} />
-                  </div>
-                </button>
-              ))}
-            </div>
+          {/* Quick Actions Row */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <button onClick={() => setActiveView('browse')}
+              className="bg-white rounded-xl border border-gray-200 p-5 text-left hover:border-dwel-teal hover:shadow-md transition-all group">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center text-xl">🛒</div>
+                <div className="font-semibold text-gray-900 text-sm">Order Groceries</div>
+              </div>
+              <p className="text-xs text-gray-500">Browse Stop & Shop, Trader Joe's, and more via Uber Eats</p>
+              <div className="mt-2 flex items-center gap-1 text-xs text-dwel-teal font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                Browse stores <ChevronRight size={12} />
+              </div>
+            </button>
+            <button onClick={() => { setActiveView('browse'); setCategoryFilter('Restaurant') }}
+              className="bg-white rounded-xl border border-gray-200 p-5 text-left hover:border-dwel-teal hover:shadow-md transition-all group">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center text-xl">🍽️</div>
+                <div className="font-semibold text-gray-900 text-sm">Order a Meal</div>
+              </div>
+              <p className="text-xs text-gray-500">Restaurants near Robert with heart-healthy options</p>
+              <div className="mt-2 flex items-center gap-1 text-xs text-dwel-teal font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                Browse restaurants <ChevronRight size={12} />
+              </div>
+            </button>
+            <button onClick={() => { setActiveView('browse'); setCategoryFilter('Pharmacy') }}
+              className="bg-white rounded-xl border border-gray-200 p-5 text-left hover:border-dwel-teal hover:shadow-md transition-all group">
+              <div className="flex items-center gap-3 mb-2">
+                <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center text-xl">💊</div>
+                <div className="font-semibold text-gray-900 text-sm">Pharmacy & Supplies</div>
+              </div>
+              <p className="text-xs text-gray-500">CVS, Walgreens — OTC items and refills via Uber Eats</p>
+              <div className="mt-2 flex items-center gap-1 text-xs text-dwel-teal font-medium opacity-0 group-hover:opacity-100 transition-opacity">
+                Browse pharmacy <ChevronRight size={12} />
+              </div>
+            </button>
           </div>
 
-          {/* Quick Actions & Saved Lists side by side */}
+          {/* Saved Lists + Quick Reorder */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Quick Reorder */}
             <div>
               <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <RotateCcw size={18} />
-                Quick Reorder
-              </h3>
-              <div className="space-y-3">
-                {orderHistory.slice(0, 3).map(order => {
-                  const service = connectedServices.find(s => s.id === order.service)
-                  return (
-                    <div key={order.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <ServiceIcon service={order.service} />
-                        <div>
-                          <div className="text-sm font-medium text-gray-900">{service?.name} — {order.items} items</div>
-                          <div className="text-xs text-gray-500">${order.total.toFixed(2)} • {order.date}</div>
-                        </div>
-                      </div>
-                      <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-dwel-teal bg-dwel-teal-light rounded-lg hover:bg-dwel-teal hover:text-white transition-colors">
-                        <RefreshCw size={14} />
-                        Reorder
-                      </button>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
-
-            {/* Saved Lists */}
-            <div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
-                <FileText size={18} />
-                Saved Lists
+                <FileText size={18} /> Saved Lists
               </h3>
               <div className="space-y-3">
                 {savedLists.map(list => (
                   <div key={list.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <ServiceIcon service={list.service} size="sm" />
+                      <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-lg">{list.merchantIcon}</div>
                       <div>
                         <div className="text-sm font-medium text-gray-900">{list.name}</div>
                         <div className="text-xs text-gray-500">
-                          {list.items} items • Last: {list.lastOrdered}
+                          {list.items} items • {list.merchantName} • ~${list.estimatedTotal.toFixed(2)}
                           {list.autoReorder && (
                             <span className="ml-2 inline-flex items-center gap-1 text-dwel-teal">
-                              <Zap size={10} />
-                              Auto: {list.nextAuto}
+                              <Zap size={10} /> Auto: {list.nextAuto}
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
                     <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-white bg-dwel-teal rounded-lg hover:bg-dwel-teal-dark transition-colors">
-                      <Package size={14} />
-                      Order
+                      <Package size={14} /> Order
                     </button>
                   </div>
                 ))}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <RotateCcw size={18} /> Quick Reorder
+              </h3>
+              <div className="space-y-3">
+                {orderHistory.slice(0, 3).map(order => (
+                  <div key={order.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 bg-gray-100 rounded-lg flex items-center justify-center text-lg">{order.merchantIcon}</div>
+                      <div>
+                        <div className="text-sm font-medium text-gray-900">{order.merchant} — {order.items} items</div>
+                        <div className="text-xs text-gray-500">${order.total.toFixed(2)} • {order.date}</div>
+                      </div>
+                    </div>
+                    <button className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-dwel-teal bg-dwel-teal-light rounded-lg hover:bg-dwel-teal hover:text-white transition-colors">
+                      <RefreshCw size={14} /> Reorder
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* Spending Summary */}
+          <div className="bg-white rounded-xl border border-gray-200 p-5">
+            <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+              <BarChart3 size={18} /> Monthly Spending — Powered by Uber
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
+              {[
+                { label: 'Groceries', value: `$${spendingData.thisMonth.groceries.toFixed(0)}`, color: 'text-green-600', icon: '🛒' },
+                { label: 'Meals', value: `$${spendingData.thisMonth.meals.toFixed(0)}`, color: 'text-orange-600', icon: '🍽️' },
+                { label: 'Pharmacy', value: `$${spendingData.thisMonth.pharmacy.toFixed(0)}`, color: 'text-purple-600', icon: '💊' },
+                { label: 'Rides', value: `$${spendingData.thisMonth.rides.toFixed(0)}`, color: 'text-gray-900', icon: '🚗' },
+                { label: 'Voucher Left', value: `$${spendingData.voucherBalance.toFixed(0)}`, color: 'text-dwel-teal', icon: '🎟️' },
+              ].map((stat, i) => (
+                <div key={i} className="text-center p-3 bg-gray-50 rounded-lg">
+                  <div className="text-xl mb-1">{stat.icon}</div>
+                  <div className={`text-lg font-bold ${stat.color}`}>{stat.value}</div>
+                  <div className="text-xs text-gray-500 mt-0.5">{stat.label}</div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 p-3 bg-dwel-teal-light rounded-lg flex items-center justify-between">
+              <div className="text-sm text-dwel-teal">
+                <strong>Employer Benefit:</strong> ${spendingData.voucherBalance.toFixed(2)} remaining of ${spendingData.voucherTotal.toFixed(2)}/mo
+              </div>
+              <div className="w-32 bg-white rounded-full h-2">
+                <div className="h-2 rounded-full bg-dwel-teal" style={{ width: `${(spendingData.voucherBalance / spendingData.voucherTotal) * 100}%` }} />
               </div>
             </div>
           </div>
@@ -427,13 +592,9 @@ export default function Shopping() {
           <div>
             <div className="flex items-center justify-between mb-3">
               <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                <Clock size={18} />
-                Recent Orders
+                <Clock size={18} /> Recent Orders
               </h3>
-              <button
-                onClick={() => setActiveView('history')}
-                className="text-sm text-dwel-teal font-medium hover:underline flex items-center gap-1"
-              >
+              <button onClick={() => setActiveView('history')} className="text-sm text-dwel-teal font-medium hover:underline flex items-center gap-1">
                 View all <ChevronRight size={14} />
               </button>
             </div>
@@ -441,33 +602,33 @@ export default function Shopping() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-100 bg-gray-50/50">
-                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Order</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Store</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Items</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Total</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                    <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">When</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {orderHistory.map(order => {
-                    const service = connectedServices.find(s => s.id === order.service)
-                    return (
-                      <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                        <td className="px-5 py-3 font-medium text-gray-900">{order.id}</td>
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-2">
-                            <ServiceIcon service={order.service} size="sm" />
-                            <span className="text-gray-700">{service?.name}</span>
+                  {orderHistory.slice(0, 4).map(order => (
+                    <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                      <td className="px-5 py-3 font-medium text-gray-900">{order.id}</td>
+                      <td className="px-5 py-3">
+                        <div className="flex items-center gap-2">
+                          <span className="text-lg">{order.merchantIcon}</span>
+                          <div>
+                            <div className="text-gray-700 text-sm">{order.merchant}</div>
+                            <CategoryBadge category={order.category} />
                           </div>
-                        </td>
-                        <td className="px-5 py-3 text-gray-600">{order.items}</td>
-                        <td className="px-5 py-3 font-medium text-gray-900">${order.total.toFixed(2)}</td>
-                        <td className="px-5 py-3"><StatusBadge status={order.status} /></td>
-                        <td className="px-5 py-3 text-gray-500">{order.date}</td>
-                      </tr>
-                    )
-                  })}
+                        </div>
+                      </td>
+                      <td className="px-5 py-3 text-gray-600">{order.items}</td>
+                      <td className="px-5 py-3 font-medium text-gray-900">${order.total.toFixed(2)}</td>
+                      <td className="px-5 py-3"><StatusBadge status={order.status} /></td>
+                      <td className="px-5 py-3 text-gray-500">{order.date}</td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -475,97 +636,166 @@ export default function Shopping() {
         </div>
       )}
 
-      {/* ─── BROWSE VIEW ───────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+           BROWSE — Merchant Discovery
+         ═══════════════════════════════════════════════════════ */}
       {activeView === 'browse' && (
         <div className="space-y-6">
-          {/* Search & Filter Bar */}
+          {/* Search & Filter */}
           <div className="flex gap-3">
             <div className="flex-1 relative">
               <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
-              <input
-                type="text"
-                value={searchQuery}
-                onChange={e => setSearchQuery(e.target.value)}
-                placeholder="Search groceries, medical supplies, medications..."
-                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-dwel-teal focus:border-transparent"
-              />
+              <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+                placeholder="Search stores, restaurants, pharmacies near Robert..."
+                className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-dwel-teal focus:border-transparent" />
             </div>
-            <div className="relative">
-              <select
-                value={selectedService}
-                onChange={e => setSelectedService(e.target.value)}
-                className="appearance-none pl-4 pr-10 py-2.5 bg-white border border-gray-200 rounded-lg text-sm font-medium text-gray-700 focus:outline-none focus:ring-2 focus:ring-dwel-teal cursor-pointer"
-              >
-                <option value="all">All Services</option>
-                {connectedServices.map(s => (
-                  <option key={s.id} value={s.id}>{s.name}</option>
-                ))}
-              </select>
-              <ChevronDown size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+            <div className="flex gap-1 bg-white border border-gray-200 rounded-lg p-1">
+              {['all', 'Grocery', 'Restaurant', 'Pharmacy'].map(cat => (
+                <button key={cat} onClick={() => setCategoryFilter(cat)}
+                  className={`px-3 py-1.5 rounded-md text-xs font-medium transition-colors ${
+                    categoryFilter === cat ? 'bg-dwel-teal text-white' : 'text-gray-600 hover:bg-gray-100'
+                  }`}>
+                  {cat === 'all' ? 'All' : cat}
+                </button>
+              ))}
             </div>
           </div>
 
-          {/* Running Low Banner */}
-          <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-center gap-3">
-            <AlertCircle size={18} className="text-amber-600 shrink-0" />
-            <span className="text-sm text-amber-800">
-              <strong>{careRecipient.name}</strong> may be running low on {inventoryAlerts.length} items based on order history.
-            </span>
-            <button
-              onClick={() => setActiveView('inventory')}
-              className="ml-auto text-sm font-medium text-amber-700 hover:underline whitespace-nowrap"
-            >
-              View Inventory →
-            </button>
+          <p className="text-sm text-gray-500">Stores and restaurants delivering to {careRecipient.address} via Uber Eats</p>
+
+          {/* Merchant Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filteredMerchants.map(m => (
+              <button key={m.id} onClick={() => openMerchant(m)}
+                className="bg-white rounded-xl border border-gray-200 p-5 text-left hover:border-dwel-teal hover:shadow-md transition-all group">
+                <div className="flex items-center gap-3 mb-3">
+                  <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">{m.icon}</div>
+                  <div>
+                    <div className="font-semibold text-gray-900">{m.name}</div>
+                    <CategoryBadge category={m.category} />
+                  </div>
+                </div>
+                <div className="flex items-center justify-between text-xs text-gray-500">
+                  <span className="flex items-center gap-1"><Star size={11} className="text-amber-400 fill-amber-400" /> {m.rating}</span>
+                  <span className="flex items-center gap-1"><Truck size={11} /> {m.deliveryEta}</span>
+                  <span className="flex items-center gap-1"><MapPin size={11} /> {m.distance}</span>
+                </div>
+                <div className="mt-2 flex items-center justify-between text-xs">
+                  <span className="text-gray-500">Delivery: ${m.deliveryFee.toFixed(2)}</span>
+                  <span className="text-dwel-teal font-medium opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-1">
+                    View menu <ArrowRight size={12} />
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {filteredMerchants.length === 0 && (
+            <div className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400">
+              <Search size={32} className="mx-auto mb-3 opacity-40" />
+              <p>No stores found matching your search</p>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════
+           MERCHANT MENU — Item Browsing (Consumer Delivery API)
+         ═══════════════════════════════════════════════════════ */}
+      {activeView === 'merchant-menu' && selectedMerchant && (
+        <div className="space-y-6">
+          {/* Merchant Header */}
+          <div className="bg-white rounded-xl border border-gray-200 p-5 flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <button onClick={() => { setActiveView('browse'); setSelectedMerchant(null); setSearchQuery('') }}
+                className="p-2 hover:bg-gray-100 rounded-lg text-gray-400 hover:text-gray-600 transition-colors">
+                <ChevronRight size={18} className="rotate-180" />
+              </button>
+              <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">{selectedMerchant.icon}</div>
+              <div>
+                <h2 className="font-semibold text-gray-900 text-lg">{selectedMerchant.name}</h2>
+                <div className="flex items-center gap-3 text-xs text-gray-500">
+                  <CategoryBadge category={selectedMerchant.category} />
+                  <span className="flex items-center gap-1"><Star size={11} className="text-amber-400 fill-amber-400" /> {selectedMerchant.rating}</span>
+                  <span className="flex items-center gap-1"><Truck size={11} /> {selectedMerchant.deliveryEta}</span>
+                  <span>Delivery: ${selectedMerchant.deliveryFee.toFixed(2)}</span>
+                </div>
+              </div>
+            </div>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-2 text-xs text-gray-600 cursor-pointer bg-gray-50 px-3 py-2 rounded-lg">
+                <input type="checkbox" checked={dietaryFilterOn} onChange={() => setDietaryFilterOn(!dietaryFilterOn)}
+                  className="rounded border-gray-300 text-dwel-teal focus:ring-dwel-teal" />
+                <Heart size={12} className="text-red-400" />
+                {careRecipient.name}'s dietary profile
+              </label>
+            </div>
+          </div>
+
+          {/* Dietary Profile Info */}
+          {dietaryFilterOn && (
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3">
+              <Heart size={14} className="text-emerald-600 shrink-0" />
+              <span className="text-xs text-emerald-800">
+                Showing items matching: <strong>{careRecipient.dietaryProfile.join(', ')}</strong>
+              </span>
+            </div>
+          )}
+
+          {/* Search */}
+          <div className="relative">
+            <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input type="text" value={searchQuery} onChange={e => setSearchQuery(e.target.value)}
+              placeholder={`Search ${selectedMerchant.name} items...`}
+              className="w-full pl-10 pr-4 py-2.5 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-dwel-teal focus:border-transparent" />
           </div>
 
           {/* Product Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredItems.map(item => {
+            {filteredMenu.map(item => {
               const inCart = cart.find(c => c.id === item.id)
-              const service = connectedServices.find(s => s.id === item.service)
               return (
-                <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-5 hover:shadow-md hover:border-dwel-teal/30 transition-all">
-                  <div className="flex items-start justify-between mb-3">
+                <div key={item.id}
+                  className={`bg-white rounded-xl border p-5 hover:shadow-md transition-all ${
+                    item.runningLow ? 'border-amber-200 bg-amber-50/30' : 'border-gray-200 hover:border-dwel-teal/30'
+                  }`}>
+                  <div className="flex items-start justify-between mb-2">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">
-                        {item.icon}
-                      </div>
+                      <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl">{item.icon}</div>
                       <div>
                         <h4 className="font-semibold text-gray-900 text-sm">{item.name}</h4>
-                        <div className="flex items-center gap-2 mt-0.5">
-                          <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${service?.tagColor}`}>
-                            {service?.name}
-                          </span>
+                        <div className="flex items-center gap-1 mt-0.5 flex-wrap">
+                          <span className="text-xs text-gray-400">{item.category}</span>
                           {item.runningLow && (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium bg-red-50 text-red-600 border border-red-100">
-                              <AlertCircle size={10} />
-                              Low
+                            <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-50 text-red-600 border border-red-100">
+                              <AlertCircle size={8} /> ~{item.daysLeft}d left
                             </span>
                           )}
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center justify-between mt-4">
+                  {item.dietaryFlags.length > 0 && (
+                    <div className="flex gap-1 flex-wrap mb-3">
+                      {item.dietaryFlags.map(f => <DietaryTag key={f} label={f} />)}
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between mt-2">
                     <div className="text-lg font-bold text-gray-900">${item.price.toFixed(2)}</div>
                     {inCart ? (
                       <div className="flex items-center gap-2">
-                        <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200 transition-colors">
+                        <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200">
                           <Minus size={14} />
                         </button>
                         <span className="w-8 text-center font-semibold text-sm">{inCart.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-lg bg-dwel-teal-light flex items-center justify-center hover:bg-dwel-teal hover:text-white transition-colors text-dwel-teal">
+                        <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-lg bg-dwel-teal-light flex items-center justify-center hover:bg-dwel-teal hover:text-white text-dwel-teal">
                           <Plus size={14} />
                         </button>
                       </div>
                     ) : (
-                      <button
-                        onClick={() => addToCart(item)}
-                        className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-dwel-teal bg-dwel-teal-light rounded-lg hover:bg-dwel-teal hover:text-white transition-colors"
-                      >
-                        <Plus size={14} />
-                        Add
+                      <button onClick={() => addToCart(item, selectedMerchant.id)}
+                        className="flex items-center gap-1.5 px-4 py-2 text-sm font-medium text-dwel-teal bg-dwel-teal-light rounded-lg hover:bg-dwel-teal hover:text-white transition-colors">
+                        <Plus size={14} /> Add
                       </button>
                     )}
                   </div>
@@ -574,16 +804,18 @@ export default function Shopping() {
             })}
           </div>
 
-          {filteredItems.length === 0 && (
+          {filteredMenu.length === 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-12 text-center text-gray-400">
               <Search size={32} className="mx-auto mb-3 opacity-40" />
-              <p>No items found matching your search</p>
+              <p>{dietaryFilterOn ? `No items match ${careRecipient.name}'s dietary profile` : 'No items found'}</p>
             </div>
           )}
         </div>
       )}
 
-      {/* ─── CART VIEW ─────────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+           CART
+         ═══════════════════════════════════════════════════════ */}
       {activeView === 'cart' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2 space-y-4">
@@ -591,102 +823,86 @@ export default function Shopping() {
               <div className="bg-white rounded-xl border border-gray-200 p-12 text-center">
                 <ShoppingCart size={40} className="mx-auto mb-3 text-gray-300" />
                 <p className="text-gray-500 mb-4">Your cart is empty</p>
-                <button
-                  onClick={() => setActiveView('browse')}
-                  className="px-5 py-2.5 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-medium text-sm"
-                >
-                  Browse Items
+                <button onClick={() => setActiveView('browse')}
+                  className="px-5 py-2.5 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-medium text-sm">
+                  Browse Stores
                 </button>
               </div>
             ) : (
-              cart.map(item => {
-                const service = connectedServices.find(s => s.id === item.service)
-                return (
-                  <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4">
-                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl shrink-0">
-                      {item.icon}
+              <>
+                {cartMerchant && (
+                  <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-xl">
+                    <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center text-lg">{cartMerchant.icon}</div>
+                    <div className="text-sm">
+                      <span className="font-medium text-gray-900">{cartMerchant.name}</span>
+                      <span className="text-gray-500 ml-2">{cartMerchant.deliveryEta} delivery</span>
                     </div>
+                  </div>
+                )}
+                {cart.map(item => (
+                  <div key={item.id} className="bg-white rounded-xl border border-gray-200 p-4 flex items-center gap-4">
+                    <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center text-2xl shrink-0">{item.icon}</div>
                     <div className="flex-1 min-w-0">
                       <h4 className="font-semibold text-gray-900 text-sm">{item.name}</h4>
-                      <div className="flex items-center gap-2 mt-0.5">
-                        <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium ${service?.tagColor}`}>
-                          {service?.name}
-                        </span>
-                        <span className="text-xs text-gray-500">
-                          <Truck size={10} className="inline mr-1" />
-                          {service?.deliveryEta}
-                        </span>
-                      </div>
+                      <div className="text-xs text-gray-500">{item.category}</div>
                     </div>
                     <div className="flex items-center gap-3">
                       <div className="flex items-center gap-2">
-                        <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200">
-                          <Minus size={14} />
-                        </button>
+                        <button onClick={() => updateQty(item.id, -1)} className="w-8 h-8 rounded-lg bg-gray-100 flex items-center justify-center hover:bg-gray-200"><Minus size={14} /></button>
                         <span className="w-8 text-center font-semibold text-sm">{item.qty}</span>
-                        <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-lg bg-dwel-teal-light flex items-center justify-center hover:bg-dwel-teal hover:text-white text-dwel-teal">
-                          <Plus size={14} />
-                        </button>
+                        <button onClick={() => updateQty(item.id, 1)} className="w-8 h-8 rounded-lg bg-dwel-teal-light flex items-center justify-center hover:bg-dwel-teal hover:text-white text-dwel-teal"><Plus size={14} /></button>
                       </div>
                       <div className="w-20 text-right font-bold text-gray-900 text-sm">${(item.price * item.qty).toFixed(2)}</div>
-                      <button onClick={() => removeFromCart(item.id)} className="p-2 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition-colors">
-                        <Trash2 size={16} />
-                      </button>
+                      <button onClick={() => removeFromCart(item.id)} className="p-2 hover:bg-red-50 rounded-lg text-gray-400 hover:text-red-500 transition-colors"><Trash2 size={16} /></button>
                     </div>
                   </div>
-                )
-              })
+                ))}
+              </>
             )}
           </div>
 
-          {/* Order Summary */}
           {cart.length > 0 && (
             <div className="bg-white rounded-xl border border-gray-200 p-5 h-fit sticky top-6">
               <h3 className="font-semibold text-gray-900 mb-4">Order Summary</h3>
               <div className="space-y-3 text-sm">
-                <div className="flex justify-between text-gray-600">
-                  <span>Subtotal ({cartCount} items)</span>
-                  <span>${cartTotal.toFixed(2)}</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Delivery fees</span>
-                  <span>$3.99</span>
-                </div>
-                <div className="flex justify-between text-gray-600">
-                  <span>Dwel service fee</span>
-                  <span>$1.99</span>
-                </div>
+                <div className="flex justify-between text-gray-600"><span>Subtotal ({cartCount} items)</span><span>${cartTotal.toFixed(2)}</span></div>
+                <div className="flex justify-between text-gray-600"><span>Uber Eats delivery</span><span>${deliveryFee.toFixed(2)}</span></div>
+                <div className="flex justify-between text-gray-600"><span>Dwel care fee</span><span>${dwelFee.toFixed(2)}</span></div>
+                {spendingData.voucherBalance > 0 && (
+                  <div className="flex justify-between text-dwel-teal">
+                    <span className="flex items-center gap-1">🎟️ Voucher credit</span>
+                    <span>-${Math.min(spendingData.voucherBalance, cartTotal + deliveryFee + dwelFee).toFixed(2)}</span>
+                  </div>
+                )}
                 <div className="border-t border-gray-200 pt-3 flex justify-between font-bold text-gray-900">
                   <span>Total</span>
-                  <span>${(cartTotal + 3.99 + 1.99).toFixed(2)}</span>
+                  <span>${Math.max(0, cartTotal + deliveryFee + dwelFee - spendingData.voucherBalance).toFixed(2)}</span>
                 </div>
               </div>
 
               <div className="mt-4 p-3 bg-dwel-teal-light rounded-lg">
-                <div className="flex items-center gap-2 text-xs text-dwel-teal font-medium">
-                  <MapPin size={12} />
-                  Delivering to {careRecipient.name}
-                </div>
+                <div className="flex items-center gap-2 text-xs text-dwel-teal font-medium"><MapPin size={12} /> Delivering to {careRecipient.name}</div>
                 <div className="text-xs text-gray-500 mt-1">{careRecipient.address}</div>
+              </div>
+
+              <div className="mt-3 p-3 bg-gray-50 rounded-lg text-xs text-gray-500">
+                <div className="font-medium text-gray-700 mb-1">Payment via linked Uber account</div>
+                Voucher applied automatically • Remainder charged to card on file
               </div>
 
               {approvalRequired && (
                 <div className="mt-3 p-3 bg-amber-50 border border-amber-100 rounded-lg flex items-start gap-2">
                   <CheckCircle2 size={14} className="text-amber-600 mt-0.5 shrink-0" />
-                  <span className="text-xs text-amber-700">Approval required — you'll review before the order is placed</span>
+                  <span className="text-xs text-amber-700">Approval required — you'll review before order is placed</span>
                 </div>
               )}
 
-              <button
-                onClick={() => setShowCheckout(true)}
-                className="w-full mt-4 py-3 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-semibold text-sm"
-              >
-                {approvalRequired ? 'Review & Approve Order' : 'Place Order'}
+              <button onClick={() => setShowCheckout(true)}
+                className="w-full mt-4 py-3 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-semibold text-sm">
+                {approvalRequired ? 'Review & Approve' : 'Place Order via Uber Eats'}
               </button>
-              <button
-                onClick={() => setActiveView('browse')}
-                className="w-full mt-2 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors"
-              >
+              <button onClick={() => { setActiveView(selectedMerchant ? 'merchant-menu' : 'browse') }}
+                className="w-full mt-2 py-2.5 text-sm font-medium text-gray-600 hover:text-gray-800 transition-colors">
                 Continue Shopping
               </button>
             </div>
@@ -694,109 +910,108 @@ export default function Shopping() {
         </div>
       )}
 
-      {/* ─── SAVED LISTS VIEW ──────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+           SAVED LISTS
+         ═══════════════════════════════════════════════════════ */}
       {activeView === 'lists' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between mb-2">
-            <p className="text-sm text-gray-500">Manage recurring orders and templates for {careRecipient.name}</p>
+            <p className="text-sm text-gray-500">Shopping list templates linked to Uber Eats stores for {careRecipient.name}</p>
             <button className="flex items-center gap-2 px-4 py-2 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors text-sm font-medium">
-              <Plus size={16} />
-              Create List
+              <Plus size={16} /> Create List
             </button>
           </div>
-          {savedLists.map(list => {
-            const service = connectedServices.find(s => s.id === list.service)
-            return (
-              <div key={list.id} className="bg-white rounded-xl border border-gray-200 p-5">
-                <div className="flex items-start justify-between">
-                  <div className="flex items-center gap-3">
-                    <ServiceIcon service={list.service} />
-                    <div>
-                      <h4 className="font-semibold text-gray-900">{list.name}</h4>
-                      <div className="text-xs text-gray-500 mt-0.5">
-                        {list.items} items • via {service?.name} • Last ordered: {list.lastOrdered}
-                      </div>
+          {savedLists.map(list => (
+            <div key={list.id} className="bg-white rounded-xl border border-gray-200 p-5">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl">{list.merchantIcon}</div>
+                  <div>
+                    <h4 className="font-semibold text-gray-900">{list.name}</h4>
+                    <div className="text-xs text-gray-500 mt-0.5">
+                      {list.items} items • {list.merchantName} • ~${list.estimatedTotal.toFixed(2)} • Last: {list.lastOrdered}
                     </div>
                   </div>
-                  <div className="flex items-center gap-2">
-                    {list.autoReorder && (
-                      <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-dwel-teal-light text-dwel-teal">
-                        <Zap size={10} />
-                        Auto-reorder: {list.nextAuto}
-                      </span>
-                    )}
-                    <button className="px-4 py-2 text-sm font-medium text-white bg-dwel-teal rounded-lg hover:bg-dwel-teal-dark transition-colors">
-                      Order Now
-                    </button>
-                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  {list.autoReorder && (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-medium bg-dwel-teal-light text-dwel-teal">
+                      <Zap size={10} /> Auto: {list.frequency} — Next: {list.nextAuto}
+                    </span>
+                  )}
+                  <button className="px-4 py-2 text-sm font-medium text-white bg-dwel-teal rounded-lg hover:bg-dwel-teal-dark transition-colors">
+                    Order Now
+                  </button>
                 </div>
               </div>
-            )
-          })}
+            </div>
+          ))}
         </div>
       )}
 
-      {/* ─── ORDER HISTORY VIEW ────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+           ORDER HISTORY
+         ═══════════════════════════════════════════════════════ */}
       {activeView === 'history' && (
         <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
           <table className="w-full text-sm">
             <thead>
               <tr className="border-b border-gray-100 bg-gray-50/50">
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Order</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Service</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Items</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
-                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Rating</th>
-                <th className="text-right px-5 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Order</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Store</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Items</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Total</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Status</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Date</th>
+                <th className="text-left px-5 py-3 text-xs font-medium text-gray-500 uppercase">Rating</th>
+                <th className="text-right px-5 py-3 text-xs font-medium text-gray-500 uppercase">Actions</th>
               </tr>
             </thead>
             <tbody>
-              {orderHistory.map(order => {
-                const service = connectedServices.find(s => s.id === order.service)
-                return (
-                  <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                    <td className="px-5 py-4 font-medium text-gray-900">{order.id}</td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <ServiceIcon service={order.service} size="sm" />
-                        <span className="text-gray-700">{service?.name}</span>
+              {orderHistory.map(order => (
+                <tr key={order.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
+                  <td className="px-5 py-4 font-medium text-gray-900">{order.id}</td>
+                  <td className="px-5 py-4">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{order.merchantIcon}</span>
+                      <div>
+                        <div className="text-gray-700 text-sm">{order.merchant}</div>
+                        <CategoryBadge category={order.category} />
                       </div>
-                    </td>
-                    <td className="px-5 py-4 text-gray-600">{order.items}</td>
-                    <td className="px-5 py-4 font-medium text-gray-900">${order.total.toFixed(2)}</td>
-                    <td className="px-5 py-4"><StatusBadge status={order.status} /></td>
-                    <td className="px-5 py-4 text-gray-500">{order.date}</td>
-                    <td className="px-5 py-4">
-                      {order.rating && (
-                        <div className="flex items-center gap-1">
-                          {[...Array(order.rating)].map((_, i) => (
-                            <Star key={i} size={12} className="text-amber-400 fill-amber-400" />
-                          ))}
-                        </div>
-                      )}
-                      {order.eta && <span className="text-xs text-blue-600">{order.eta}</span>}
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <button className="text-sm text-dwel-teal font-medium hover:underline">Reorder</button>
-                    </td>
-                  </tr>
-                )
-              })}
+                    </div>
+                  </td>
+                  <td className="px-5 py-4 text-gray-600">{order.items}</td>
+                  <td className="px-5 py-4 font-medium text-gray-900">${order.total.toFixed(2)}</td>
+                  <td className="px-5 py-4"><StatusBadge status={order.status} /></td>
+                  <td className="px-5 py-4 text-gray-500">{order.date}</td>
+                  <td className="px-5 py-4">
+                    {order.rating && (
+                      <div className="flex items-center gap-1">
+                        {[...Array(order.rating)].map((_, i) => (
+                          <Star key={i} size={12} className="text-amber-400 fill-amber-400" />
+                        ))}
+                      </div>
+                    )}
+                  </td>
+                  <td className="px-5 py-4 text-right">
+                    <button className="text-sm text-dwel-teal font-medium hover:underline">Reorder</button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
       )}
 
-      {/* ─── INVENTORY VIEW ────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+           INVENTORY
+         ═══════════════════════════════════════════════════════ */}
       {activeView === 'inventory' && (
         <div className="space-y-6">
           <p className="text-sm text-gray-500">
-            Estimated supply levels based on order frequency and delivery patterns for {careRecipient.name}.
+            Supply estimates based on Uber Eats order frequency for {careRecipient.name}. Dwel tracks ordering patterns to predict when items will run out.
           </p>
 
-          {/* Inventory Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {inventoryAlerts.map((alert, i) => {
               const pct = Math.round((alert.daysLeft / 14) * 100)
@@ -806,24 +1021,22 @@ export default function Shopping() {
                     <div>
                       <h4 className="font-semibold text-gray-900">{alert.item}</h4>
                       <div className={`text-sm ${alert.severity === 'urgent' ? 'text-red-600' : 'text-amber-600'}`}>
-                        ~{alert.daysLeft} days remaining
+                        ~{alert.daysLeft} days remaining • ${alert.price.toFixed(2)}
                       </div>
                     </div>
                     <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${
                       alert.severity === 'urgent' ? 'bg-red-50 text-red-700 border border-red-200' : 'bg-amber-50 text-amber-700 border border-amber-200'
-                    }`}>
-                      {alert.severity === 'urgent' ? 'Urgent' : 'Warning'}
-                    </span>
+                    }`}>{alert.severity === 'urgent' ? 'Urgent' : 'Warning'}</span>
                   </div>
                   <div className="w-full bg-gray-100 rounded-full h-2 mb-3">
-                    <div
-                      className={`h-2 rounded-full transition-all ${alert.severity === 'urgent' ? 'bg-red-500' : 'bg-amber-500'}`}
-                      style={{ width: `${pct}%` }}
-                    />
+                    <div className={`h-2 rounded-full transition-all ${alert.severity === 'urgent' ? 'bg-red-500' : 'bg-amber-500'}`} style={{ width: `${pct}%` }} />
                   </div>
                   <div className="flex gap-2">
-                    <button className="flex-1 py-2 text-sm font-medium text-white bg-dwel-teal rounded-lg hover:bg-dwel-teal-dark transition-colors">
-                      Reorder Now
+                    <button onClick={() => {
+                      const menuItem = merchantMenuItems['stop-and-shop-456']?.find(m => m.id === alert.merchantItem)
+                      if (menuItem) addToCart(menuItem, 'stop-and-shop-456')
+                    }} className="flex-1 py-2 text-sm font-medium text-white bg-dwel-teal rounded-lg hover:bg-dwel-teal-dark transition-colors">
+                      Add to Cart
                     </button>
                     <button className="flex-1 py-2 text-sm font-medium text-dwel-teal bg-dwel-teal-light rounded-lg hover:bg-dwel-teal hover:text-white transition-colors">
                       Set Auto-Reorder
@@ -834,23 +1047,22 @@ export default function Shopping() {
             })}
           </div>
 
-          {/* Analytics Preview */}
+          {/* Spending Analytics */}
           <div className="bg-white rounded-xl border border-gray-200 p-5">
             <h3 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-              <BarChart3 size={18} />
-              Spending Analytics
+              <BarChart3 size={18} /> Spending Analytics — All via Uber
             </h3>
-            <div className="grid grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
               {[
-                { label: 'This Month', value: '$284.54', change: '+12%', color: 'text-dwel-teal' },
-                { label: 'Avg Monthly', value: '$253.20', change: '', color: 'text-gray-900' },
-                { label: 'Orders', value: '8', change: '', color: 'text-gray-900' },
-                { label: 'Savings', value: '$42.00', change: 'Auto-reorder', color: 'text-green-600' },
+                { label: 'This Month', value: `$${spendingData.thisMonth.total.toFixed(0)}`, sub: `${spendingData.ordersThisMonth} orders + ${spendingData.ridesThisMonth} rides`, color: 'text-dwel-teal' },
+                { label: 'Last Month', value: `$${spendingData.lastMonth.total.toFixed(0)}`, sub: '', color: 'text-gray-900' },
+                { label: 'Voucher Used', value: `$${(spendingData.voucherTotal - spendingData.voucherBalance).toFixed(0)}`, sub: `of $${spendingData.voucherTotal.toFixed(0)}`, color: 'text-gray-900' },
+                { label: 'Voucher Left', value: `$${spendingData.voucherBalance.toFixed(0)}`, sub: 'Employer benefit', color: 'text-green-600' },
               ].map((stat, i) => (
                 <div key={i} className="text-center p-3 bg-gray-50 rounded-lg">
                   <div className={`text-xl font-bold ${stat.color}`}>{stat.value}</div>
                   <div className="text-xs text-gray-500 mt-1">{stat.label}</div>
-                  {stat.change && <div className="text-xs text-green-600 mt-0.5">{stat.change}</div>}
+                  {stat.sub && <div className="text-[10px] text-gray-400 mt-0.5">{stat.sub}</div>}
                 </div>
               ))}
             </div>
@@ -858,27 +1070,34 @@ export default function Shopping() {
         </div>
       )}
 
-      {/* ─── CHECKOUT MODAL ────────────────────────────────── */}
+      {/* ═══════════════════════════════════════════════════════
+           CHECKOUT MODAL
+         ═══════════════════════════════════════════════════════ */}
       {showCheckout && (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between rounded-t-2xl">
               <h2 className="text-lg font-semibold text-gray-900">Review & Approve Order</h2>
-              <button onClick={() => setShowCheckout(false)} className="p-2 hover:bg-gray-100 rounded-lg">
-                <X size={18} className="text-gray-500" />
-              </button>
+              <button onClick={() => setShowCheckout(false)} className="p-2 hover:bg-gray-100 rounded-lg"><X size={18} className="text-gray-500" /></button>
             </div>
             <div className="p-6 space-y-4">
-              {/* Recipient Info */}
+              {/* Recipient + Merchant */}
               <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
-                <div className="w-10 h-10 bg-dwel-teal-light rounded-full flex items-center justify-center text-sm font-semibold text-dwel-teal">
-                  {careRecipient.initials}
-                </div>
+                <div className="w-10 h-10 bg-dwel-teal-light rounded-full flex items-center justify-center text-sm font-semibold text-dwel-teal">{careRecipient.initials}</div>
                 <div>
                   <div className="text-sm font-medium text-gray-900">Delivering to {careRecipient.name}</div>
                   <div className="text-xs text-gray-500">{careRecipient.address}</div>
                 </div>
               </div>
+              {cartMerchant && (
+                <div className="flex items-center gap-3 p-3 bg-gray-50 rounded-lg">
+                  <div className="w-8 h-8 bg-gray-200 rounded-lg flex items-center justify-center text-lg">{cartMerchant.icon}</div>
+                  <div className="text-sm">
+                    <span className="font-medium text-gray-900">{cartMerchant.name}</span>
+                    <span className="text-gray-500 ml-2">via Uber Eats • {cartMerchant.deliveryEta}</span>
+                  </div>
+                </div>
+              )}
 
               {/* Items */}
               <div className="space-y-2">
@@ -896,14 +1115,17 @@ export default function Shopping() {
               {/* Totals */}
               <div className="bg-gray-50 rounded-lg p-4 space-y-2 text-sm">
                 <div className="flex justify-between text-gray-600"><span>Subtotal</span><span>${cartTotal.toFixed(2)}</span></div>
-                <div className="flex justify-between text-gray-600"><span>Delivery</span><span>$3.99</span></div>
-                <div className="flex justify-between text-gray-600"><span>Dwel fee</span><span>$1.99</span></div>
+                <div className="flex justify-between text-gray-600"><span>Uber Eats delivery</span><span>${deliveryFee.toFixed(2)}</span></div>
+                <div className="flex justify-between text-gray-600"><span>Dwel care fee</span><span>${dwelFee.toFixed(2)}</span></div>
+                {spendingData.voucherBalance > 0 && (
+                  <div className="flex justify-between text-dwel-teal"><span>Voucher credit</span><span>-${Math.min(spendingData.voucherBalance, cartTotal + deliveryFee + dwelFee).toFixed(2)}</span></div>
+                )}
                 <div className="border-t border-gray-200 pt-2 flex justify-between font-bold text-gray-900">
-                  <span>Total</span><span>${(cartTotal + 3.99 + 1.99).toFixed(2)}</span>
+                  <span>You pay</span><span>${Math.max(0, cartTotal + deliveryFee + dwelFee - spendingData.voucherBalance).toFixed(2)}</span>
                 </div>
               </div>
 
-              {/* Notifications */}
+              {/* Options */}
               <div className="space-y-2">
                 <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                   <input type="checkbox" defaultChecked className="rounded border-gray-300 text-dwel-teal focus:ring-dwel-teal" />
@@ -911,20 +1133,22 @@ export default function Shopping() {
                 </label>
                 <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
                   <input type="checkbox" defaultChecked className="rounded border-gray-300 text-dwel-teal focus:ring-dwel-teal" />
-                  Add to {careRecipient.name}'s care log
+                  Notify {careRecipient.name} via SMS when delivering
+                </label>
+                <label className="flex items-center gap-2 text-sm text-gray-600 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="rounded border-gray-300 text-dwel-teal focus:ring-dwel-teal" />
+                  Log in {careRecipient.name}'s care timeline
                 </label>
               </div>
 
               <button
-                onClick={() => {
-                  setShowCheckout(false)
-                  setCart([])
-                  setActiveView('overview')
-                }}
-                className="w-full py-3 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-semibold"
-              >
-                Approve & Place Order
+                onClick={() => { setShowCheckout(false); setCart([]); setActiveView('overview') }}
+                className="w-full py-3 bg-dwel-teal text-white rounded-lg hover:bg-dwel-teal-dark transition-colors font-semibold">
+                Approve & Place Order via Uber Eats
               </button>
+              <p className="text-[10px] text-gray-400 text-center">
+                Payment processed through linked Uber account. Voucher applied automatically.
+              </p>
             </div>
           </div>
         </div>
