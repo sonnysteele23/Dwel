@@ -48,7 +48,7 @@ export default function Sidebar({ open, setOpen }) {
       {/* Logo — top of sidebar, centered when collapsed */}
       <button
         onClick={() => navigate('/')}
-        className={`pt-4 pb-3 flex items-center gap-3 w-full hover:bg-gray-50 transition-colors ${open ? 'px-4' : 'justify-center'}`}
+        className={`pt-4 pb-3 flex items-center w-full hover:bg-gray-50 transition-colors ${open ? 'px-4 gap-3' : 'justify-center px-0'}`}
         title="Go to homepage"
       >
         <div className={`w-8 h-8 ${theme.colors.primary} rounded-full flex items-center justify-center shrink-0`}>
@@ -65,7 +65,7 @@ export default function Sidebar({ open, setOpen }) {
       </button>
 
       {/* Hamburger — below logo */}
-      <div className={`pb-2 flex ${open ? 'px-4 justify-start' : 'justify-center'}`}>
+      <div className={`pb-2 flex ${open ? 'px-4 justify-start' : 'justify-center px-0'}`}>
         <button
           onClick={() => setOpen(!open)}
           className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
