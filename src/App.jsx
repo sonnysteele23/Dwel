@@ -10,6 +10,7 @@ import Onboarding from './components/Onboarding'
 import RecipientHealth from './components/RecipientHealth'
 import LandingPage from './components/LandingPage'
 import AuthPage from './components/AuthPage'
+import ApiReference from './components/ApiReference'
 import { useState } from 'react'
 
 function DemoLayout() {
@@ -61,6 +62,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LandingPage />} />
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/api-reference" element={<ApiReference />} />
         <Route path="/demo/*" element={<DemoLayout />} />
         <Route path="*" element={<Navigate to="/" />} />
       </Routes>
