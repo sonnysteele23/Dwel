@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { User, ClipboardList, Users, ShoppingCart, MessageSquare, CheckCircle, ArrowRight, ArrowLeft, Check, Star, Link2, Bell } from 'lucide-react'
+import OnboardingCarousel from './OnboardingCarousel'
 
 const steps = [
   { id: 'profile', label: 'Your Profile', icon: User },
@@ -61,10 +62,19 @@ export default function Onboarding() {
   const [selectedNeeds, setSelectedNeeds] = useState([])
   const [selectedServices, setSelectedServices] = useState([])
   const [selectedMessaging, setSelectedMessaging] = useState([])
+  const [showCarousel, setShowCarousel] = useState(true)
 
   if (!currentStep) {
     return (
       <div className="p-6 max-w-3xl mx-auto">
+        {/* Marketing Carousel Overlay */}
+        {showCarousel && (
+          <OnboardingCarousel
+            onComplete={() => setShowCarousel(false)}
+            startOpen={true}
+          />
+        )}
+
         <div className="bg-white rounded-xl border border-gray-200 p-8 text-center">
           <button onClick={() => navigate('/demo')} className="flex items-center gap-2 text-sm font-medium text-gray-500 hover:text-gray-900 transition-colors mb-6 mx-auto">
             <ArrowLeft size={16} /> Back to Dashboard
