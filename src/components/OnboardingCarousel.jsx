@@ -148,14 +148,31 @@ function ServicesIllustration() {
       <path d="M50 160 Q100 140 160 155 Q220 170 280 145" stroke="#9ca3af" strokeWidth="3" strokeDasharray="8 4" fill="none" />
       {/* Route line */}
       <path d="M50 160 Q100 140 160 155 Q220 170 280 145" stroke="#2D9F8F" strokeWidth="3" fill="none" strokeDasharray="200" style={{ animation: 'route-draw 2s ease-out forwards' }} />
-      {/* Car */}
+      {/* Car — side-profile sedan */}
       <g style={{ animation: 'drive 1.2s ease-out forwards' }}>
-        <rect x="80" y="132" width="50" height="22" rx="6" fill="#2D9F8F" />
-        <rect x="85" y="126" width="20" height="10" rx="3" fill="#2D9F8F" opacity="0.7" />
-        <circle cx="92" cy="156" r="5" fill="#374151" />
-        <circle cx="92" cy="156" r="2" fill="#9ca3af" />
-        <circle cx="118" cy="156" r="5" fill="#374151" />
-        <circle cx="118" cy="156" r="2" fill="#9ca3af" />
+        {/* Car body */}
+        <path d="M68 148 L72 148 L76 134 L92 126 L112 126 L120 134 L130 134 L130 148 L132 148 L132 152 L128 152 L128 148 L74 148 L74 152 L68 152 Z" fill="#2D9F8F" />
+        {/* Roof / cabin */}
+        <path d="M80 134 L88 126 L110 126 L118 134 Z" fill="#247F73" />
+        {/* Windows */}
+        <path d="M82 133 L88 128 L98 128 L98 133 Z" fill="#b5e8e0" />
+        <path d="M100 133 L100 128 L110 128 L116 133 Z" fill="#b5e8e0" />
+        {/* Headlight */}
+        <rect x="126" y="138" width="5" height="4" rx="1" fill="#fbbf24" />
+        {/* Taillight */}
+        <rect x="69" y="138" width="4" height="4" rx="1" fill="#ef4444" />
+        {/* Front wheel */}
+        <circle cx="88" cy="152" r="7" fill="#374151" />
+        <circle cx="88" cy="152" r="4" fill="#6b7280" />
+        <circle cx="88" cy="152" r="1.5" fill="#9ca3af" />
+        {/* Rear wheel */}
+        <circle cx="120" cy="152" r="7" fill="#374151" />
+        <circle cx="120" cy="152" r="4" fill="#6b7280" />
+        <circle cx="120" cy="152" r="1.5" fill="#9ca3af" />
+        {/* Door handle */}
+        <rect x="96" y="137" width="6" height="1.5" rx="0.75" fill="#247F73" />
+        {/* Side mirror */}
+        <ellipse cx="76" cy="133" rx="3" ry="2" fill="#247F73" />
       </g>
       {/* Shopping bag */}
       <g style={{ animation: 'bag-drop 0.8s ease-out 0.6s both' }}>
@@ -170,7 +187,7 @@ function ServicesIllustration() {
         <path d="M270 136 l0 10" stroke="#2D9F8F" strokeWidth="2" />
       </g>
       {/* Labels */}
-      <text x="92" y="180" textAnchor="middle" fontFamily="DM Sans, system-ui" fontSize="9" fill="#6b7280" fontWeight="500">Rides</text>
+      <text x="100" y="176" textAnchor="middle" fontFamily="DM Sans, system-ui" fontSize="9" fill="#6b7280" fontWeight="500">Rides</text>
       <text x="232" y="124" textAnchor="middle" fontFamily="DM Sans, system-ui" fontSize="9" fill="#6b7280" fontWeight="500">Deliveries</text>
     </svg>
   )
@@ -320,7 +337,7 @@ export default function OnboardingCarousel({
               <img src={slide.media} alt={slide.title} className="w-full h-full object-cover" />
             )
           ) : IllustrationComponent ? (
-            <div key={slide.id} className="w-full h-full flex items-center justify-center p-6"
+            <div key={`illust-${currentIndex}`} className="w-full h-full flex items-center justify-center p-6"
               style={{
                 animation: isAnimating
                   ? `slide-out-${direction === 1 ? 'left' : 'right'} 0.28s ease-in forwards`
